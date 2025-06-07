@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/rack-service/pom.xml" />
+        <option value="$PROJECT_DIR$/rates-service/pom.xml" />
+        <option value="$PROJECT_DIR$/report-service/pom.xml" />
+        <option value="$PROJECT_DIR$/specialdaydiscount/pom.xml" />
+        <option value="$PROJECT_DIR$/reservation-service/pom.xml" />
+        <option value="$PROJECT_DIR$/peoplediscount-service/pom.xml" />
+        <option value="$PROJECT_DIR$/loyaltydiscount-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/loyaltydiscount-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/peoplediscount-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/rack-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/reservation-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/specialdaydiscount/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/rates-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/report-service/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="corretto-17" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

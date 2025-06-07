@@ -1,0 +1,114 @@
+package com.example.reservation_service.Services;
+
+import com.example.reservation_service.Entities.ReservationEntity;
+import com.example.reservation_service.Repositories.ReceiptRepository;
+import com.example.reservation_service.Repositories.ReservationRepository;
+import com.example.reservation_service.dto.ClientDTO;
+import com.example.reservation_service.dto.KartDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+public class ReservationService {
+
+    @Autowired
+    private ReservationRepository reservationRepository;
+
+    @Autowired
+    private ReceiptRepository receiptRepository;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public List<ReservationEntity> findReservationBetweenDates(LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
+        return reservationRepository.findOverlappingReservations(fecha, horaInicio, horaFin);
+    }
+
+    public List<ReservationEntity> getReservations(){
+        return reservationRepository.findAll();
+    }
+
+    public ReservationEntity getReservationById(Long reservationId){
+        return reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("No se encontró la reserva con ID: " + reservationId));
+    }
+
+    public ReservationEntity createReservation(ReservationEntity reservation) {
+
+        ClientDTO holderClient = getClientByRut(reservation.getHoldersReservation());
+
+        if(holderClient == null){
+            throw new RuntimeException("El cliente de rut: " + reservation.getHoldersReservation()+" debe de estar registrado para hacer la reserva");
+        }
+        try{
+            // extraemos la cantidad de personas
+            int numberPeople = reservation.getGroupSizeReservation();
+
+            // Obtenemos los karts disponibles
+            List<KartDTO> disponibles = getAvailableKarts();
+
+            // verificamos disponibilidad
+            if (disponibles.size() < numberPeople) {
+                throw new RuntimeException("No hay suficientes karts disponibles para esta reserva.");
+            }
+
+            //asignamos los karts disponibles
+            List<Long> idsKartsAsignados = disponibles.subList(0, numberPeople)
+                    .stream()
+                    .map(KartDTO::getIdKart)
+                    .collect(Collectors.toList());; // pq aun no se hace el receipt
+
+            reservation.setKartIds(idsKartsAsignados);
+
+            reservation.setStatusReservation("pendiente");
+
+            System.out.println("Creando la reserva ID: " + reservation.getIdReservation()+" \n");
+            System.out.println("A nombre de " + reservation.getHoldersReservation()+" \n");
+            return reservationRepository.save(reservation);
+        }
+        catch(Exception e){
+            System.err.println("Error al crear la Reserva");
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public List<KartDTO> getAvailableKarts() {
+        try {
+            String url = "http://localhost:8094/api/rates-service/kart/available/";
+            ResponseEntity<KartDTO[]> response = restTemplate.getForEntity(url, KartDTO[].class);
+            return Arrays.asList(response.getBody());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al consultar los karts disponibles: " + e.getMessage());
+        }
+    }
+
+    public ClientDTO getClientByRut(String rut) {
+        try {
+            String url = "http://localhost:8091/api/loyalty-service/client/" + rut; // Ajusta el puerto
+            ResponseEntity<ClientDTO> response = restTemplate.getForEntity(url, ClientDTO.class);
+            return response.getBody();
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new RuntimeException("Cliente no encontrado con RUT: " + rut);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al consultar cliente: " + e.getMessage());
+        }
+    }
+
+    public void deleteReservationById(Long id) {
+        //Borramos los receipt que tengan el id de la reserva
+        receiptRepository.deleteByReservationId(id);
+        System.out.println("\n Eliminando la reserva de ID: " + id+" *****\n");
+        //borramos la reserva
+        reservationRepository.deleteById(id);
+    }
+}
