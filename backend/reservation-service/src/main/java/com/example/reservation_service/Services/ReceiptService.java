@@ -5,12 +5,28 @@ import com.example.reservation_service.Entities.ReservationEntity;
 import com.example.reservation_service.Repositories.ReceiptRepository;
 import com.example.reservation_service.Repositories.ReservationRepository;
 import com.example.reservation_service.dto.ReceiptDTO;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
+import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceRGB;
+
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ReceiptService {
@@ -20,6 +36,9 @@ public class ReceiptService {
 
     @Autowired
     private ReservationRepository reservationRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -98,11 +117,31 @@ public class ReceiptService {
 
             // cambiamos el estado de la reserva a pagada:
             reservation.setStatusReservation("pagada");
+
+            // Obtener el email del cliente
+            String emailClient = restTemplate.getForObject(
+                    "http://localhost:8091/api/client/getemail/" + receipt.getRutClientReceipt(),
+                    String.class
+            );
+
+            String normalizedEmail = emailClient.toLowerCase();
+            if (normalizedEmail.endsWith("@gmail.com") ||
+                            normalizedEmail.endsWith("@hotmail.com") ||
+                            normalizedEmail.endsWith("@outlook.com") ||
+                            normalizedEmail.endsWith("@usach.cl")
+            ) {
+                byte[] pdfAdjunto = generarPdfRecibo(receipt);
+                sendReceiptWithPdf(emailClient, "Comprobante de Pago - Karting RM",
+                        "Adjunto encontrarás tu comprobante en formato PDF.", pdfAdjunto);
+            }else{
+                System.out.println("El Comprobante de pago no se pudo enviar x correo.");
+            }
             // creamos el recibo
             return receiptRepository.save(receipt);
         }
         catch(Exception e){
             System.err.println("Error al crear El comprobante");
+            e.printStackTrace();
             throw e;
         }
     }
@@ -251,5 +290,145 @@ public class ReceiptService {
                 Math.max(loyaltyDiscount, specialDaysDiscount)
         );
     }
+
+    public byte[] generarPdfRecibo(ReceiptEntity receipt) {
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+
+            try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                NumberFormat formatter = NumberFormat.getInstance(new Locale("es", "CL"));
+                float margin = 50;
+                float yStart = page.getMediaBox().getHeight() - margin;
+                float tableWidth = page.getMediaBox().getWidth() - 2 * margin;
+                float yPosition = yStart;
+                float rowHeight = 30f;
+                float tableHeight = 8 * rowHeight;
+                float cellMargin = 5f;
+                float[] columnWidth = {150f, 300f};
+                float xStart = margin;
+
+                // Título
+                contentStream.beginText();
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 16);
+                contentStream.newLineAtOffset(margin + 100, yPosition);
+                contentStream.showText("Comprobante de Pago - Karting RM");
+                contentStream.endText();
+                yPosition -= 50;
+
+                // Inicio de la tabla
+                float tableTopY = yPosition;
+
+                // Datos para la tabla
+                String[][] content = {
+                    {"Nombre", receipt.getNameClientReceipt()},
+                    {"RUT", receipt.getRutClientReceipt()},
+                    {"Precio base", "$" + formatter.format(receipt.getBaseRateReceipt())},
+                    {"Descuento aplicado", formatter.format(receipt.getMaxDiscount() * 100) + "%"},
+                    {"Monto final", "$" + formatter.format(receipt.getFinalAmount())},
+                    {"IVA (19%)", "$" + formatter.format(receipt.getIvaAmount())},
+                    {"Total a pagar", "$" + formatter.format(receipt.getTotalAmount())}
+                };
+
+                // Dibujar la tabla
+                float nextY = yPosition;
+                for (int i = 0; i < content.length; i++) {
+                    // Dibujar las líneas horizontales
+                    contentStream.moveTo(xStart, nextY);
+                    contentStream.lineTo(xStart + tableWidth, nextY);
+                    contentStream.stroke();
+
+                    // Dibujar el contenido
+                    float textY = nextY - rowHeight + 10;
+
+                    // Primera columna (etiqueta)
+                    contentStream.beginText();
+                    if (i == content.length - 1) { // Si es la última fila (Total a pagar)
+                        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                        contentStream.setNonStrokingColor(1, 0, 0); // Rojo
+                    } else {
+                        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                        contentStream.setNonStrokingColor(0, 0, 0); // Negro
+                    }
+                    contentStream.newLineAtOffset(xStart + cellMargin, textY);
+                    contentStream.showText(content[i][0]);
+                    contentStream.endText();
+
+                    // Segunda columna (valor)
+                    contentStream.beginText();
+                    if (i == content.length - 1) { // Si es la última fila (Total a pagar)
+                        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                        contentStream.setNonStrokingColor(1, 0, 0); // Rojo
+                    } else {
+                        contentStream.setFont(PDType1Font.HELVETICA, 12);
+                        contentStream.setNonStrokingColor(0, 0, 0); // Negro
+                    }
+                    contentStream.newLineAtOffset(xStart + columnWidth[0] + cellMargin, textY);
+                    contentStream.showText(content[i][1]);
+                    contentStream.endText();
+
+                    nextY -= rowHeight;
+                }
+
+                // Restaurar color negro para las líneas
+                contentStream.setStrokingColor(0, 0, 0);
+
+                // Dibujar la última línea horizontal
+                contentStream.moveTo(xStart, nextY);
+                contentStream.lineTo(xStart + tableWidth, nextY);
+                contentStream.stroke();
+
+                // Dibujar líneas verticales
+                // Línea izquierda
+                contentStream.moveTo(xStart, yPosition);
+                contentStream.lineTo(xStart, nextY);
+                contentStream.stroke();
+
+                // Línea de separación entre columnas
+                contentStream.moveTo(xStart + columnWidth[0], yPosition);
+                contentStream.lineTo(xStart + columnWidth[0], nextY);
+                contentStream.stroke();
+
+                // Línea derecha
+                contentStream.moveTo(xStart + tableWidth, yPosition);
+                contentStream.lineTo(xStart + tableWidth, nextY);
+                contentStream.stroke();
+
+                // Resaltar la última fila (Total a pagar)
+                contentStream.setLineWidth(1.5f);
+                float lastRowY = nextY + rowHeight;
+                contentStream.moveTo(xStart, lastRowY);
+                contentStream.lineTo(xStart + tableWidth, lastRowY);
+                contentStream.stroke();
+            }
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            document.save(baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            System.err.println("Error generando PDF: " + e.getMessage());
+            throw new RuntimeException("Error al generar el PDF", e);
+        }
+    }
+
+    public void sendReceiptWithPdf(String toEmail, String subject, String mensaje, byte[] pdfBytes) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(mensaje, false); // cuerpo del correo (texto plano o HTML si quieres)
+
+            ByteArrayDataSource dataSource = new ByteArrayDataSource(pdfBytes, "application/pdf");
+            helper.addAttachment("Comprobante_KartingRM.pdf", dataSource);
+
+            mailSender.send(message);
+            System.out.println("📄 PDF enviado exitosamente por correo.");
+        } catch (Exception e) {
+            System.err.println("❌ Error enviando PDF por correo: " + e.getMessage());
+        }
+    }
+
 
 }

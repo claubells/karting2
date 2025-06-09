@@ -34,7 +34,7 @@ export default function ReservationSummary() {
                 return;
             }
             setReservationData(reservation);
-            console.log("📦 Reserva completa recibida del backend:", reservation);
+            console.log("Reserva completa recibida del backend:", reservation);
             
             const clientIds = reservation.clientIds || [];
             const fullClients = await Promise.all(
@@ -93,14 +93,11 @@ export default function ReservationSummary() {
         try {
             if (!reservationData || clientList.length === 0 || specialDaysDiscount === null) return;
 
-            console.log("Simunado Recibo: ")
            const simulations = await Promise.all(clientList.map(async (client) => {
             if (!client?.idClient || !client?.rutClient) {
                 console.warn("⚠️ Cliente inválido en simulación:", client);
                 return null;
             }
-
-            console.log("🧾 Enviando recibo simulado para:", client);
 
             const simulated = await simulateReceipt({
                 rutClientReceipt: client.rutClient,
@@ -138,7 +135,6 @@ export default function ReservationSummary() {
                 alert('Datos de reserva inválidos.');
                 return;
             }
-            console.log('📦 Datos reserva:', reservationData);
 
             // se crean los comprobantes para cada cliente x el back
             for (const client of clientList) {

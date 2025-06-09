@@ -87,6 +87,17 @@ public class ClientController {
         }
     }
 
+    @GetMapping("/getemail/{rut}")
+    public ResponseEntity<String> getEmailClientByRut(@PathVariable String rut) {
+        Optional<String> name = clientService.findEmailByRut(rut);
+        if (name.isPresent()) {
+            return ResponseEntity.ok(name.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Nombre de Cliente no encontrado rut : " + rut);
+        }
+    }
+
     @GetMapping("/getid/{rut}")
     public ResponseEntity<Long> getIdClientByRut(@PathVariable String rut) {
         Optional<Long> date = clientService.findIdByRut(rut);

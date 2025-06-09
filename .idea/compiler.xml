@@ -3,7 +3,7 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for peoplediscount-service" enabled="true">
+      <profile name="Annotation profile for reservation-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -14,9 +14,18 @@
         <module name="rates-service" />
         <module name="peoplediscount-service" />
         <module name="reservation-service" />
-        <module name="loyaltydiscount-service" />
         <module name="report-service" />
         <module name="specialdaydiscount" />
+      </profile>
+      <profile name="Annotation profile for loyaltydiscount-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="loyaltydiscount-service" />
       </profile>
     </annotationProcessing>
   </component>

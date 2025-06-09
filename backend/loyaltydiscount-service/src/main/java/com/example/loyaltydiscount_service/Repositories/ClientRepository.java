@@ -11,25 +11,28 @@ import java.util.Optional;
 
 @Repository
 public interface ClientRepository extends JpaRepository<ClientEntity, Long> {
-    Optional<ClientEntity> findByRutClient(String rutClient);
 
-    @Query("SELECT c FROM ClientEntity c WHERE c.rutClient = :rutClient")
-    ClientEntity findByRutClientEntity(String rutClient);
+    Optional<ClientEntity> findByRutClient(String rutClient);
 
     @Query("SELECT c.nameClient " +
             "FROM ClientEntity  c " +
             "WHERE c.rutClient = :rut ")
-    Optional<String> findNameByRutClient(String rut);
+    Optional<String> findNameByRutClient(@Param("rut") String rut);
 
     @Query("SELECT c.birthdateClient " +
             "FROM ClientEntity c " +
             "WHERE c.rutClient = :rut")
     Optional<LocalDate> findBirthdateByRut(@Param("rut") String rut);
 
+    @Query("SELECT c.emailClient " +
+            "FROM ClientEntity  c " +
+            "WHERE c.rutClient = :rut ")
+    Optional<String> findEmailByRutClient(@Param("rut") String rut);
+
     @Query("SELECT c.idClient " +
             "FROM ClientEntity c " +
             "WHERE c.rutClient = :rut")
-    Optional<Long> getIdByRutClient(String rut);
+    Optional<Long> getIdByRutClient(@Param("rut")String rut);
 
 
     Optional<ClientEntity> findByIdClient(Long id);

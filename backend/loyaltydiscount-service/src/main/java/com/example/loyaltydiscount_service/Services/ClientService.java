@@ -42,6 +42,10 @@ public class ClientService {
         return clientRepository.findBirthdateByRut(rut);
     }
 
+    public Optional<String> findEmailByRut(String rut) {
+        return clientRepository.findEmailByRutClient(rut);
+    }
+
     public Optional<Long> findIdByRut(String rut) {
         return clientRepository.getIdByRutClient(rut);
     }
