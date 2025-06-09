@@ -5,9 +5,9 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
 import { FormControl, InputLabel, Box, Button, TextField, Typography, Select, MenuItem, Stack } from '@mui/material';
-import { verifyAvailability, getAllReservations, deleteReservationById } from '../services/reservation.service'; 
+import { verifyAvailability, getAllReservations, deleteReservationById } from '../api/reservationApi'; 
 import { getReceiptsByReservationId } from '../services/receipt.service'; 
-import { getHolidays } from '../services/discounts.service';
+import { getHolidays } from '../api/specialdayApi';
 
 
 /* -------------------- */
@@ -295,7 +295,7 @@ export default function ReservaCalendario() {
         localStorage.setItem('reservationData1', JSON.stringify(formData));
         console.log(
             'Primera parte de reserva guardada en localStorage:',
-            localStorage.getItem('reservationData')
+            localStorage.getItem('reservationData1')
         );
         navigate('/reservations-clients');
     };

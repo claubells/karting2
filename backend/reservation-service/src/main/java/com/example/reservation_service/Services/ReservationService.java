@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,14 +43,14 @@ public class ReservationService {
 
     public ReservationEntity createReservation(ReservationEntity reservation) {
 
-        ClientDTO holderClient = getClientByRut(reservation.getHoldersReservation());
-
-        if(holderClient == null){
-            throw new RuntimeException("El cliente de rut: " + reservation.getHoldersReservation()+" debe de estar registrado para hacer la reserva");
-        }
         try{
             // extraemos la cantidad de personas
             int numberPeople = reservation.getGroupSizeReservation();
+
+            // Validar que vengan los clientes
+            if (reservation.getClientIds() == null || reservation.getClientIds().isEmpty()) {
+                throw new RuntimeException("La reserva debe incluir al menos un cliente.");
+            }
 
             // Obtenemos los karts disponibles
             List<KartDTO> disponibles = getAvailableKarts();
@@ -68,11 +67,13 @@ public class ReservationService {
                     .collect(Collectors.toList());; // pq aun no se hace el receipt
 
             reservation.setKartIds(idsKartsAsignados);
-
             reservation.setStatusReservation("pendiente");
 
-            System.out.println("Creando la reserva ID: " + reservation.getIdReservation()+" \n");
-            System.out.println("A nombre de " + reservation.getHoldersReservation()+" \n");
+            System.out.println("Creando la reserva ");
+            System.out.println("Cliente titular: " + reservation.getHoldersReservation());
+            System.out.println("Client IDs: " + reservation.getClientIds());
+            System.out.println("Kart IDs: " + reservation.getKartIds());
+
             return reservationRepository.save(reservation);
         }
         catch(Exception e){
@@ -84,7 +85,7 @@ public class ReservationService {
 
     public List<KartDTO> getAvailableKarts() {
         try {
-            String url = "http://localhost:8094/api/rates-service/kart/available/";
+            String url = "http://localhost:8094/api/kart/available/";
             ResponseEntity<KartDTO[]> response = restTemplate.getForEntity(url, KartDTO[].class);
             return Arrays.asList(response.getBody());
         } catch (Exception e) {
@@ -92,6 +93,7 @@ public class ReservationService {
         }
     }
 
+    /*
     public ClientDTO getClientByRut(String rut) {
         try {
             String url = "http://localhost:8091/api/loyalty-service/client/" + rut; // Ajusta el puerto
@@ -104,6 +106,8 @@ public class ReservationService {
         }
     }
 
+     */
+
     public void deleteReservationById(Long id) {
         //Borramos los receipt que tengan el id de la reserva
         receiptRepository.deleteByReservationId(id);
@@ -111,4 +115,6 @@ public class ReservationService {
         //borramos la reserva
         reservationRepository.deleteById(id);
     }
+
+
 }

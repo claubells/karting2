@@ -1,8 +1,8 @@
-package com.example.reportservice.service;
+package com.example.report_service.Services;
 
-import com.example.reportservice.dto.ReceiptDTO;
-import com.example.reportservice.dto.ReservationDTO;
-import com.example.reportservice.dto.ReportResponseDTO;
+import com.example.report_service.dto.ReceiptDTO;
+import com.example.report_service.dto.ReservationDTO;
+import com.example.report_service.dto.ReportResponseDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 

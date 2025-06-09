@@ -26,7 +26,7 @@ public class ReservationEntity {
     private LocalTime finalHourReservation;
     private int turnsTimeReservation;
     private int groupSizeReservation;
-    private String holdersReservation;
+    private String holdersReservation; // rut
 
     @ElementCollection
     @CollectionTable(name = "reservation_clients", joinColumns = @JoinColumn(name = "reservation_id"))

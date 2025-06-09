@@ -4,6 +4,7 @@ import com.example.loyaltydiscount_service.Repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -31,5 +32,21 @@ public class ClientService {
 
     public Optional<ClientEntity> findByRut(String rut) {
         return clientRepository.findByRutClient(rut);
+    }
+
+    public Optional<String> findNameByRut(String rut) {
+        return clientRepository.findNameByRutClient(rut);
+    }
+
+    public Optional<LocalDate> findBirthdateByRut(String rut) {
+        return clientRepository.findBirthdateByRut(rut);
+    }
+
+    public Optional<Long> findIdByRut(String rut) {
+        return clientRepository.getIdByRutClient(rut);
+    }
+
+    public Optional<ClientEntity> findById(Long id) {
+        return clientRepository.findByIdClient(id);
     }
 }

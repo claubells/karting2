@@ -1,19 +1,20 @@
 import React, { useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Box, Typography, TextField } from '@mui/material';
-import { getReservationById } from '../services/reservation.service';
-import { createReceipt, simulateReceipt, getReceiptsByReservationId } from '../services/receipt.service';
-
+import { getReservationById, createReceipt, simulateReceipt, getReceiptsByReservationId } from '../api/reservationApi';
+import { getDiscount } from '../api/specialdayApi';
+import { getClientById } from '../api/loyaltyApi';
 export default function ReservationSummary() {
 
     const navigate = useNavigate();
 
-    const [reservationData, setReservationData] = useState(null);
     const [clientList, setClientList] = useState([]);
+    const [reservationData, setReservationData] = useState(null);
     const [receipts, setReceipts] = useState([]);
-    const [specialDaysDiscount, setSpecialDaysDiscount] = useState(0.21);
     const [simulatedReceipts, setSimulatedReceipts] = useState([]);
 
+    const [originalDiscount, setOriginalDiscount] = useState(null); 
+    const [specialDaysDiscount, setSpecialDaysDiscount] = useState(0.21);
 
     // 1 primero cargamos los datos de la reserva desde el localStorage
     useEffect(() => {
@@ -24,6 +25,7 @@ export default function ReservationSummary() {
                 navigate('/home');
                 return;
             }
+            
             // obtenemos la reserva desde el back
             const reservation = await getReservationById(idReservation);
             if (!reservation) {
@@ -32,7 +34,38 @@ export default function ReservationSummary() {
                 return;
             }
             setReservationData(reservation);
-            setClientList(reservation.clientList || []);
+            console.log("📦 Reserva completa recibida del backend:", reservation);
+            
+            const clientIds = reservation.clientIds || [];
+            const fullClients = await Promise.all(
+            clientIds.map(async (id) => {
+                try {
+                return await getClientById(id);
+                } catch (err) {
+                console.error(`❌ No se pudo cargar cliente con ID ${id}`, err);
+                return null;
+                }
+            })
+            );
+            setClientList(fullClients.filter(c => c !== null));
+
+            // Se carga el descuento original desde el back
+            try {
+                //llamamos a la función
+                const discountFromBackend = await getDiscount(reservation.dateReservation);
+                console.log("Descuento de holidays: ", discountFromBackend);
+                if (typeof discountFromBackend === 'number') {
+                    setSpecialDaysDiscount(discountFromBackend);
+                    setOriginalDiscount(discountFromBackend);
+                } else {
+                    setSpecialDaysDiscount(0); // fallback si backend falla
+                    setOriginalDiscount(0);
+                }
+            } catch (error) {
+                console.error('Error obteniendo descuento especial:', error);
+                setSpecialDaysDiscount(0);
+                setOriginalDiscount(0);
+            }
         
         };
         loadInitialData();
@@ -60,17 +93,25 @@ export default function ReservationSummary() {
         try {
             if (!reservationData || clientList.length === 0 || specialDaysDiscount === null) return;
 
-            const simulations = await Promise.all(clientList.map(async (client) => {
-                const simulated = await simulateReceipt({
-                    rutClientReceipt: client.rutClient,
-                    reservationId: reservationData.idReservation,
-                    clientId: client.idClient,
-                    specialDaysDiscount: specialDaysDiscount,
-                });
-                return simulated;
+            console.log("Simunado Recibo: ")
+           const simulations = await Promise.all(clientList.map(async (client) => {
+            if (!client?.idClient || !client?.rutClient) {
+                console.warn("⚠️ Cliente inválido en simulación:", client);
+                return null;
+            }
+
+            console.log("🧾 Enviando recibo simulado para:", client);
+
+            const simulated = await simulateReceipt({
+                rutClientReceipt: client.rutClient,
+                reservationId: reservationData.idReservation,
+                clientId: client.idClient,
+                specialDaysDiscount: specialDaysDiscount,
+            });
+            return simulated;
             }));
 
-            setSimulatedReceipts(simulations);
+            setSimulatedReceipts(simulations.filter(r => r !== null));
         } catch (error) {
             console.error('Error simulando los recibos:', error);
         }
@@ -97,14 +138,24 @@ export default function ReservationSummary() {
                 alert('Datos de reserva inválidos.');
                 return;
             }
+            console.log('📦 Datos reserva:', reservationData);
+
             // se crean los comprobantes para cada cliente x el back
             for (const client of clientList) {
+                if (!client.rutClient || !client.idClient) {
+                    console.error('⚠️ Cliente sin rutClient o idClient:', client);
+                    continue; // o return si quieres cortar el proceso
+                }
+
+                console.log("🧾 Enviando recibo para:", client);
+
                 await createReceipt({
                     rutClientReceipt: client.rutClient,
                     reservationId: reservationData.idReservation,
                     clientId: client.idClient,
                     specialDaysDiscount: specialDaysDiscount,
                 });
+                
             }
 
             const receiptsData = await getReceiptsByReservationId(reservationData.idReservation);
@@ -135,8 +186,12 @@ export default function ReservationSummary() {
                     setSpecialDaysDiscount(isNaN(value) ? 0 : value / 100);
                 }}
                 onBlur={() => {
-                    // Cuando el usuario deja de editar, vuelve a simular todos los recibos
-                    simulateAllReceipts();
+                    if (specialDaysDiscount !== originalDiscount) {
+                        console.log("🟡 Descuento modificado por el usuario, re-simulando...");
+                    } else {
+                        console.log("🟢 Descuento intacto, re-simulando igual por seguridad...");
+                    }
+                    simulateAllReceipts(); // Simula con el valor actual
                 }}
                 slotProps={{
                     input: {
@@ -208,7 +263,7 @@ export default function ReservationSummary() {
                 // aqui cuando se hace click se llama a la función handleSubmitReservation
                 onClick={() => { handleSubmitReservation();}}
             >
-                Confirmar Reserva
+                Confirmar Pago de Reserva
             </Button>
         </Box>
     );

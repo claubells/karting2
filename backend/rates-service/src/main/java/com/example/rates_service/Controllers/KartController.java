@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/rates-service/kart")
+@RequestMapping("/api/kart")
 @CrossOrigin("*")
 public class KartController {
     @Autowired

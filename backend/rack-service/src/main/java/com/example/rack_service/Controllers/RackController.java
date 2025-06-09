@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rack")
+@RequestMapping("/api/rack")
 public class RackController {
 
     private final RackService rackService;

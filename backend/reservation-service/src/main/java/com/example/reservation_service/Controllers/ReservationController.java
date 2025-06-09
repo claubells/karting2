@@ -3,7 +3,6 @@ package com.example.reservation_service.Controllers;
 import com.example.reservation_service.Entities.ReservationEntity;
 import com.example.reservation_service.Services.ReceiptService;
 import com.example.reservation_service.Services.ReservationService;
-import com.example.reservation_service.dto.KartDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +10,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/reservation-service/reservation")
+@RequestMapping("/api/reservation/")
 @CrossOrigin("*")
 public class ReservationController {
     @Autowired
@@ -40,8 +38,9 @@ public class ReservationController {
     @PostMapping("/")
     public ResponseEntity<?> createReservation(@RequestBody ReservationEntity reservation) {
         try {
+            System.out.println("Empezando a crear una nueva reserva...");
             ReservationEntity newReservation = reservationService.createReservation(reservation);
-            System.out.println("Creando nueva reserva ***\nID: "+ newReservation.getIdReservation());
+            System.out.println("Creando nueva reserva ***\n: ");
             return ResponseEntity.ok(newReservation);
         } catch (RuntimeException e) {
 
@@ -59,7 +58,7 @@ public class ReservationController {
             @RequestParam String horaFin
     ){
         System.out.println(("\n**************************"));
-        System.out.println(("Recibiendo..."));
+        System.out.println(("Recibiendo finReservationBetwenDates: ..."));
         System.out.println("fecha: "+fecha+"\nHoraInicio: "+horaInicio+"\nHoraFin:"+horaFin);
         LocalDate fechaReserva = LocalDate.parse(fecha);
         LocalTime inicio = LocalTime.parse(horaInicio);
@@ -85,10 +84,10 @@ public class ReservationController {
 
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteReservation(@PathVariable Long id) {
+    @DeleteMapping("/{idReservation}")
+    public ResponseEntity<String> deleteReservation(@PathVariable Long idReservation) {
         try {
-            reservationService.deleteReservationById(id);
+            reservationService.deleteReservationById(idReservation);
             return ResponseEntity.ok("Reserva eliminada");
         } catch ( Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar la reserva");

@@ -1,12 +1,12 @@
 package com.example.report_service.Controllers;
 
-import com.example.reportservice.dto.ReportResponseDTO;
-import com.example.reportservice.service.ReportService;
+import com.example.report_service.dto.ReportResponseDTO;
+import com.example.report_service.Services.ReportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/report")
+@RequestMapping("api/report")
 public class ReportController {
 
     private final ReportService reportService;

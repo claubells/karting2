@@ -12,7 +12,7 @@ export default function Home() {
             p={4}
         >
             <Typography variant="h3" component="h3" gutterBottom>
-                Inicio Karting RM YAN 
+                Inicio Karting RM
             </Typography>
         </Box>
     );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAllKarts } from '../services/kart.service';
+import { getAllKarts } from '../api/ratesApi';
 import {
     Container,
     Typography,
@@ -8,7 +8,15 @@ import {
     CircularProgress,
     AlertTitle,
     Alert,
+    Card,
+    CardContent,
+    Chip,
+    Paper,
+    Grow,
 } from '@mui/material';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const Karts = () => {
     // "karts" es una variable de estado que empieza como un array vacío
@@ -86,29 +94,79 @@ const Karts = () => {
     }
 
     return (
-        <Container sx={{ mt: 10 }}>
-            <Typography variant="h4" fontWeight="bold" sx={{ mb: 3, textAlign: 'left' }}>
-                Karts Disponibles
-            </Typography>
+        <Container sx={{ mt: 10, mb: 5 }}>
+            <Paper 
+                elevation={0} 
+                sx={{ 
+                    p: 3, 
+                    mb: 4, 
+                    background: 'linear-gradient(45deg, #2196f3 30%, #64b5f6 90%)',
+                    borderRadius: 2
+                }}
+            >
+                <Typography 
+                    variant="h4" 
+                    fontWeight="bold" 
+                    sx={{ 
+                        color: 'white',
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.2)'
+                    }}
+                >
+                    Karts Disponibles
+                </Typography>
+                <Typography 
+                    variant="subtitle1" 
+                    sx={{ 
+                        mt: 1, 
+                        color: 'rgba(255,255,255,0.9)'
+                    }}
+                >
+                    Explora nuestra flota de karts de alta calidad
+                </Typography>
+            </Paper>
 
             <Grid container spacing={3}>
-                {karts.map((kart) => (
-                    <Grid key={kart.idKart}>
-                        <Box
-                            sx={{
-                                border: '0.7px solid #ccc',
-                                borderRadius: '10px',
-                                padding: 3,
-                                width: 280,
-                                height: 110,
-                                backgroundColor: '#708090',
-                                overflow: 'hidden',
-                            }}
-                        >
-                            <Typography sx={{ mb: 1 }}>código: {kart.codeKart}</Typography>
-                            <Typography sx={{ mb: 1 }}>Modelo: {kart.modelKart}</Typography>
-                            <Typography sx={{ mb: 1 }}>Estado: {kart.statusKart}</Typography>
-                        </Box>
+                {karts.map((kart, index) => (
+                    <Grid item xs={12} sm={6} md={4} key={kart.idKart}>
+                        <Grow in={true} timeout={300 * (index + 1)}>
+                            <Card 
+                                elevation={3}
+                                sx={{
+                                    height: '100%',
+                                    transition: '0.3s',
+                                    '&:hover': {
+                                        transform: 'translateY(-5px)',
+                                        boxShadow: 6,
+                                    },
+                                }}
+                            >
+                                <CardContent>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                        <DirectionsCarIcon sx={{ fontSize: 40, color: '#2196f3', mr: 2 }} />
+                                        <Typography variant="h6" component="div">
+                                            {kart.modelKart}
+                                        </Typography>
+                                    </Box>
+                                    
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                        <QrCodeIcon sx={{ color: '#90caf9', mr: 1 }} />
+                                        <Typography variant="body1" color="text.secondary">
+                                            Código: {kart.codeKart}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <SettingsIcon sx={{ color: '#90caf9', mr: 1 }} />
+                                        <Chip
+                                            label={kart.statusKart}
+                                            color={kart.statusKart.toLowerCase() === 'disponible' ? 'success' : 'warning'}
+                                            size="small"
+                                            sx={{ borderRadius: 1 }}
+                                        />
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Grow>
                     </Grid>
                 ))}
             </Grid>

@@ -11,8 +11,8 @@ import {
     Chip,
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
-import { createReservation} from '../services/reservation.service';
-import { checkClientExists, createClient, getClientByRut } from '../services/client.service';
+import { createReservation} from '../api/reservationApi';
+import { checkClientExists, createClient, getClientByRut } from '../api/loyaltyApi';
 import { useNavigate } from 'react-router-dom';
 
 export default function ReservationClients() {
@@ -35,13 +35,7 @@ export default function ReservationClients() {
         const storedReserva = localStorage.getItem('reservationData1');
         if (storedReserva) {
             const { fecha, horaInicio, horaFin, turns } = JSON.parse(storedReserva);
-            setReservationData1({
-                dateReservation: fecha,
-                startHourReservation: horaInicio,
-                finalHourReservation: horaFin,
-                turnsTimeReservation: parseInt(turns),
-                groupSizeReservation: parseInt(numberPeople),
-            });
+            
         }
     }, []);
 
@@ -144,23 +138,31 @@ export default function ReservationClients() {
                 }
             }
 
+            const storedReserva = JSON.parse(localStorage.getItem('reservationData1'));
+            const { fecha, horaInicio, horaFin, turns } = storedReserva;
+
+            const reservationData = {
+                dateReservation: fecha,
+                startHourReservation: horaInicio,
+                finalHourReservation: horaFin,
+                turnsTimeReservation: parseInt(turns),
+                groupSizeReservation: parseInt(numberPeople),
+            };
+
             const infoNewReservation = {
-                dateReservation: reservationData1.dateReservation,
-                startHourReservation: reservationData1.startHourReservation,
-                finalHourReservation: reservationData1.finalHourReservation,
-                turnsTimeReservation: reservationData1.turnsTimeReservation,
-                groupSizeReservation: reservationData1.groupSizeReservation,
-                dateReservation: reservationData1.dateReservation,
-                startHourReservation: reservationData1.startHourReservation,
-                finalHourReservation: reservationData1.finalHourReservation,
-                turnsTimeReservation: reservationData1.turnsTimeReservation,
-                groupSizeReservation: numberPeople,
+                ...reservationData,
                 holdersReservation: clientList[0].rutClient,
-                clientList: clientList.map(c => ({ idClient: c.idClient })),
+                clientIds: clientList.map(c => c.idClient),
             };
 
             // creamos la reserva
             const newReservation = await createReservation(infoNewReservation);
+
+            if (!newReservation || !newReservation.idReservation) {
+                console.error('❌ La reserva no se creó correctamente:', newReservation);
+                alert('No se pudo crear la reserva. El ID es inválido.');
+                return;
+            }
 
             // guardamos la nueva reserva en el localStorage
             localStorage.setItem('reservationData2', JSON.stringify({
@@ -279,7 +281,7 @@ export default function ReservationClients() {
             {/* Botón para enviar */}
             {numberPeople !== '' && (
                 <Button type="submit" variant="contained" color="success" sx={{ mt: 2 }}>
-                    Enviar Reserva
+                    Crear Reserva
                 </Button>
             )}
         </Box>
