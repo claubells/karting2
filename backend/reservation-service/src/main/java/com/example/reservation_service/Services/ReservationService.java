@@ -5,6 +5,8 @@ import com.example.reservation_service.Repositories.ReceiptRepository;
 import com.example.reservation_service.Repositories.ReservationRepository;
 import com.example.reservation_service.dto.ClientDTO;
 import com.example.reservation_service.dto.KartDTO;
+import com.example.reservation_service.dto.RackReservationDTO;
+import com.example.reservation_service.dto.ReservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,32 @@ public class ReservationService {
 
     public List<ReservationEntity> getReservations(){
         return reservationRepository.findAll();
+    }
+
+    public List<ReservationDTO> getMinimalReservations() {
+        return reservationRepository.findAll().stream()
+                .map(r -> new ReservationDTO(
+                        r.getIdReservation(),
+                        r.getDateReservation(),
+                        r.getTurnsTimeReservation(),
+                        r.getGroupSizeReservation()
+                ))
+                .toList();
+    }
+
+    public List<RackReservationDTO> getAllForRack() {
+        List<ReservationEntity> entities = reservationRepository.findAll();
+
+        return entities.stream().map(res -> new RackReservationDTO(
+                res.getIdReservation(),
+                res.getHoldersReservation(),
+                res.getDateReservation(),
+                res.getStartHourReservation().toString(),
+                res.getFinalHourReservation().toString(),
+                res.getTurnsTimeReservation(),
+                res.getGroupSizeReservation(),
+                res.getStatusReservation()
+        )).collect(Collectors.toList());
     }
 
     public ReservationEntity getReservationById(Long reservationId){
@@ -92,21 +120,6 @@ public class ReservationService {
             throw new RuntimeException("Error al consultar los karts disponibles: " + e.getMessage());
         }
     }
-
-    /*
-    public ClientDTO getClientByRut(String rut) {
-        try {
-            String url = "http://localhost:8091/api/loyalty-service/client/" + rut; // Ajusta el puerto
-            ResponseEntity<ClientDTO> response = restTemplate.getForEntity(url, ClientDTO.class);
-            return response.getBody();
-        } catch (HttpClientErrorException.NotFound e) {
-            throw new RuntimeException("Cliente no encontrado con RUT: " + rut);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al consultar cliente: " + e.getMessage());
-        }
-    }
-
-     */
 
     public void deleteReservationById(Long id) {
         //Borramos los receipt que tengan el id de la reserva

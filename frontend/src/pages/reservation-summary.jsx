@@ -176,31 +176,34 @@ export default function ReservationSummary() {
     
     return (
         <Box p={4}>
-            <Typography variant="h5"sx={{ mb: 3 }}> Descuento especial para fines de semana/feriados </Typography>
-            <TextField
-                label="Descuento(%)"
-                type="number"
-                value={(specialDaysDiscount * 100).toFixed(0)}
-                onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    setSpecialDaysDiscount(isNaN(value) ? 0 : value / 100);
-                }}
-                onBlur={() => {
-                    if (specialDaysDiscount !== originalDiscount) {
-                        console.log("🟡 Descuento modificado por el usuario, re-simulando...");
-                    } else {
-                        console.log("🟢 Descuento intacto, re-simulando igual por seguridad...");
-                    }
-                    simulateAllReceipts(); // Simula con el valor actual
-                }}
-                slotProps={{
-                    input: {
-                      min: 0,
-                      max: 100,
-                    },
-                  }}
-                sx={{ mb: 6 }}
-            />
+            {isSpecialDay(reservationData.dateReservation) && (
+                <>
+                <Typography variant="h5"sx={{ mb: 3 }}> Descuento especial para fines de semana/feriados </Typography>
+                <TextField
+                    label="Descuento(%)"
+                    type="number"
+                    value={(specialDaysDiscount * 100).toFixed(0)}
+                    onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        setSpecialDaysDiscount(isNaN(value) ? 0 : value / 100);
+                    }}
+                    onBlur={() => {
+                        if (specialDaysDiscount !== originalDiscount) {
+                            console.log("🟡 Descuento modificado por el usuario, re-simulando...");
+                        } else {
+                            console.log("🟢 Descuento intacto, re-simulando igual por seguridad...");
+                        }
+                        simulateAllReceipts(); // Simula con el valor actual
+                    }}
+                    slotProps={{
+                        input: {
+                        min: 0,
+                        max: 100,
+                        },
+                    }}
+                    sx={{ mb: 6 }}
+                />
+            </>)}
             <Typography variant="h4"sx={{ mb: 3 }}>Resumen de la Reserva</Typography>
             <Typography variant="h5">Fecha: {reservationData.dateReservation}</Typography>
             <Typography variant="h5">Hora de inicio: {reservationData.startHourReservation}</Typography>

@@ -4,6 +4,7 @@ import com.example.reservation_service.Entities.ReceiptEntity;
 import com.example.reservation_service.Entities.ReservationEntity;
 import com.example.reservation_service.Repositories.ReceiptRepository;
 import com.example.reservation_service.Repositories.ReservationRepository;
+import com.example.reservation_service.dto.ReceiptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,6 +23,15 @@ public class ReceiptService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    public List<ReceiptDTO> getMinimalReceipts() {
+        return receiptRepository.findAll().stream()
+                .map(r -> new ReceiptDTO(
+                        r.getReservationId(),
+                        r.getBaseRateReceipt()
+                ))
+                .toList();
+    }
 
     public ReceiptEntity createReceipt(ReceiptEntity receipt) {
 

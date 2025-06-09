@@ -5,9 +5,9 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
 import { FormControl, InputLabel, Box, Button, TextField, Typography, Select, MenuItem, Stack } from '@mui/material';
-import { verifyAvailability, getAllReservations, deleteReservationById } from '../api/reservationApi'; 
-import { getReceiptsByReservationId } from '../services/receipt.service'; 
+import { verifyAvailability, deleteReservationById, getReceiptsByReservationId, getHoursConfig } from '../api/reservationApi';
 import { getHolidays } from '../api/specialdayApi';
+import { getRackReservations } from '../api/rackApi';
 
 
 /* -------------------- */
@@ -304,13 +304,27 @@ export default function ReservaCalendario() {
     useEffect(() => {
         const loadInitialData = async () => {
             try{
+                // *** HORARIOS ***
+                const configFromBackend = await getHoursConfig();
+                setHoursConfig({
+                        weeklyHours: {
+                        min: configFromBackend.weeklyHours.min,
+                        max: configFromBackend.weeklyHours.max,
+                    },
+                    specialHours: {
+                        min: configFromBackend.specialHours.min,
+                        max: configFromBackend.specialHours.max,
+                    },
+                });
+
+                // *** FERIADOS ***
                 const holidaysFromBackend = await getHolidays();
                 setHolidayDates(holidaysFromBackend);
                 
-
-                const reservas = await getAllReservations();
+                // *** RACK ***
+                const reservas = await getRackReservations();
                 if (!Array.isArray(reservas)) {
-                    console.error('El backend no devolvió un array:', reservas);
+                    console.error('El Rack no devolvió un array:', reservas);
                     return;
                 }
 
@@ -328,18 +342,24 @@ export default function ReservaCalendario() {
                 // bloqueos horarios de semana sin las fechas de feriados
                 const monToFri = generateWeekdayBlockings(
                     [1, 2, 3, 4, 5], // Lunes a viernes
-                    '10:00', // se bloquea desde las 10:00 a las 14:00
-                    '14:00',
+                    configFromBackend.specialHours.min,
+                    configFromBackend.weeklyHours.min, 
                     '2025-04-01',
                     '2025-12-31', // Fecha de inicio y fin del bloque
                     holidayDates // excluye las fechas de feriados
                 );
 
                 const locksHolidays = generateHolidayBlockings(
-                    holidaysFromBackend.map(date => ({ date })) // 👈 porque holidaysFromBackend son LocalDate
+                    holidaysFromBackend.map(date => ({ date })) 
                 );
 
-                setEvents([...generateWeekdayBlockings(holidayDates), ...generateHolidayBlockings(holidayDates), ...monToFri, ...locksHolidays, ...formatted]);
+                setEvents([
+                    ...generateWeekdayBlockings(holidayDates), 
+                    ...generateHolidayBlockings(holidayDates), 
+                    ...monToFri, 
+                    ...locksHolidays, 
+                    ...formatted
+                ]);
             } catch (error) {
                 console.error('Error al cargar los datos iniciales:', error);
             }

@@ -3,22 +3,21 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import { getAllReservations } from '../services/reservation.service';
-import { getReceiptsByReservationId } from '../services/receipt.service';
+import { getReportByTurns, getReportByPeople } from '../api/reportApi';
 
 export default function Reports() {
     const [value, setValue] = React.useState('one');
-    const [reportData, setReportData] = React.useState({ // de enero a mayo para los reportes
+    const [reportData, setReportData] = React.useState({ // de enero a junio para los reportes
         turns: {
-            10: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-            15: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-            20: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
+            10: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0 },
+            15: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0 },
+            20: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0 },
         },
         people: {
-            '1-2': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-            '3-5': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-            '6-10': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-            '11-15': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
+            '1-2': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0 },
+            '3-5': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0 },
+            '6-10': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0 },
+            '11-15': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 , '06': 0},
         }
     });
 
@@ -30,98 +29,17 @@ export default function Reports() {
         generateReport();
     }, []);
 
-    async function generateReportByTurns(reservations) {
-        const months = ['01', '02', '03', '04', '05']; // Meses
-        const data = {
-            10: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-            15: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-            20: { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-        };
-    
-        for (const res of reservations) {
-            const reservationMonth = String(new Date(res.dateReservation).getMonth() + 1).padStart(2, '0'); // Mes de la reserva
-            const turns = res.turnsTimeReservation; // Número de vueltas
-            
-            // verifica si el mes y el número de vueltas son válidos
-            if (months.includes(reservationMonth) && (turns === 10 || turns === 15 || turns === 20)) {
-                const receipts = await getReceiptsByReservationId(res.idReservation);
-    
-                // verifica si los recibos existen y tienen baseRateReceipt
-                if (receipts && receipts.length > 0) {
-                    for (const receipt of receipts) {
-                        if (receipt.baseRateReceipt) {
-                            data[turns][reservationMonth] += receipt.baseRateReceipt; // Acumula baseRateReceipt en el mes correspondiente
-                        }
-                    }
-                }
-            }
-        }
-    
-        return data;
-    }
-
-    async function generateReportByPeople(reservations) {
-        const months = ['01', '02', '03', '04', '05']; // Meses
-        const data = {
-          '1-2': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-          '3-5': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-          '6-10': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-          '11-15': { '01': 0, '02': 0, '03': 0, '04': 0, '05': 0 },
-        };
-      
-        for (const res of reservations) {
-          const reservationMonth = String(new Date(res.dateReservation).getMonth() + 1).padStart(2, '0'); // Obtener mes
-          const groupSize = res.groupSizeReservation; // número de personas
-      
-          // Clasificar el tamaño del grupo en rangos
-          let peopleRange = '';
-          if (groupSize >= 1 && groupSize <= 2) {
-            peopleRange = '1-2';
-          } else if (groupSize >= 3 && groupSize <= 5) {
-            peopleRange = '3-5';
-          } else if (groupSize >= 6 && groupSize <= 10) {
-            peopleRange = '6-10';
-          } else if (groupSize >= 11 && groupSize <= 15) {
-            peopleRange = '11-15';
-          }
-      
-          if (months.includes(reservationMonth) && peopleRange) {
-            const receipts = await getReceiptsByReservationId(res.idReservation);
-            
-            // verifica si los recibos existen y tienen baseRateReceipt
-            if (receipts && receipts.length > 0) {
-              for (const receipt of receipts) {
-                if (receipt.baseRateReceipt) {
-                  data[peopleRange][reservationMonth] += receipt.baseRateReceipt;
-                }
-              }
-            }
-          }
-        }
-      
-        return data;
-    }
-
     async function generateReport() {
         try {
+            const turns = await getReportByTurns();   // llama a /api/report/turns
+            const people = await getReportByPeople(); // llama a /api/report/people
 
-            const reservations = await getAllReservations();
-
-            // Llamar a la función para obtener los datos por vueltas
-            const dataByTurns = await generateReportByTurns(reservations);
-
-            // Llamar a la función para obtener los datos por número de personas
-            const dataByPeople = await generateReportByPeople(reservations);
-
-            // Combinar los resultados de ambos reportes
-            const combinedData = {
-                turns: dataByTurns,
-                people: dataByPeople,
-            };
-
-            setReportData(combinedData); // Establece los datos del reporte
+            setReportData({
+            turns: turns.turns,     // extrae solo el objeto turns
+            people: people.people,  // extrae solo el objeto people
+            });
         } catch (error) {
-            console.error('Error al generar el reporte:', error);
+            console.error('Error al obtener datos del reporte:', error);
         }
     }
 
@@ -170,6 +88,7 @@ export default function Reports() {
                                         <TableCell><b>Marzo</b></TableCell>
                                         <TableCell><b>Abril</b></TableCell>
                                         <TableCell><b>Mayo</b></TableCell>
+                                        <TableCell><b>Junio</b></TableCell>
                                         <TableCell><b>Total</b></TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -182,12 +101,14 @@ export default function Reports() {
                                             <TableCell>${reportData.turns[turns]['03'] ? reportData.turns[turns]['03'].toLocaleString() : '0'}</TableCell>
                                             <TableCell>${reportData.turns[turns]['04'] ? reportData.turns[turns]['04'].toLocaleString() : '0'}</TableCell>
                                             <TableCell>${reportData.turns[turns]['05'] ? reportData.turns[turns]['05'].toLocaleString() : '0'}</TableCell>
+                                            <TableCell>${reportData.turns[turns]['06'] ? reportData.turns[turns]['06'].toLocaleString() : '0'}</TableCell>
                                             <TableCell>${(
                                                     (reportData.turns[turns]['01'] || 0) +
                                                     (reportData.turns[turns]['02'] || 0) +
                                                     (reportData.turns[turns]['03'] || 0) +
                                                     (reportData.turns[turns]['04'] || 0) +
-                                                    (reportData.turns[turns]['05'] || 0)
+                                                    (reportData.turns[turns]['05'] || 0) +
+                                                    (reportData.turns[turns]['06'] || 0)
                                                 ).toLocaleString()}
                                             </TableCell>
                                         </TableRow>
@@ -199,13 +120,15 @@ export default function Reports() {
                                         <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['03'], 0).toLocaleString()}</b></TableCell>
                                         <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['04'], 0).toLocaleString()}</b></TableCell>
                                         <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['05'], 0).toLocaleString()}</b></TableCell>
+                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['06'], 0).toLocaleString()}</b></TableCell>
                                         <TableCell><b>${['10', '15', '20'].reduce(
                                                     (sum, t) =>sum +
                                                         reportData.turns[t]['01'] +
                                                         reportData.turns[t]['02'] +
                                                         reportData.turns[t]['03'] +
                                                         reportData.turns[t]['04'] +
-                                                        reportData.turns[t]['05'], 0
+                                                        reportData.turns[t]['05'] +
+                                                        reportData.turns[t]['06'], 0
                                                 ).toLocaleString()}</b>
                                         </TableCell>
                                     </TableRow>
@@ -232,6 +155,7 @@ export default function Reports() {
                             <TableCell><b>Marzo</b></TableCell>
                             <TableCell><b>Abril</b></TableCell>
                             <TableCell><b>Mayo</b></TableCell>
+                            <TableCell><b>Junio</b></TableCell>
                             <TableCell><b>Total</b></TableCell>
                             </TableRow>
                         </TableHead>
@@ -244,12 +168,14 @@ export default function Reports() {
                                 <TableCell>${reportData.people[range]['03'] ? reportData.people[range]['03'].toLocaleString() : '0'}</TableCell>
                                 <TableCell>${reportData.people[range]['04'] ? reportData.people[range]['04'].toLocaleString() : '0'}</TableCell>
                                 <TableCell>${reportData.people[range]['05'] ? reportData.people[range]['05'].toLocaleString() : '0'}</TableCell>
+                                <TableCell>${reportData.people[range]['06'] ? reportData.people[range]['06'].toLocaleString() : '0'}</TableCell>
                                 <TableCell>${(
                                 (reportData.people[range]['01'] || 0) +
                                 (reportData.people[range]['02'] || 0) +
                                 (reportData.people[range]['03'] || 0) +
                                 (reportData.people[range]['04'] || 0) +
-                                (reportData.people[range]['05'] || 0)
+                                (reportData.people[range]['05'] || 0) +
+                                (reportData.people[range]['06'] || 0)
                                 ).toLocaleString()}</TableCell>
                             </TableRow>
                             ))}
@@ -260,13 +186,15 @@ export default function Reports() {
                             <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['03'] || 0), 0).toLocaleString()}</b></TableCell>
                             <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['04'] || 0), 0).toLocaleString()}</b></TableCell>
                             <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['05'] || 0), 0).toLocaleString()}</b></TableCell>
+                            <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['06'] || 0), 0).toLocaleString()}</b></TableCell>
                             <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) =>
                                 sum +
                                 (reportData.people[r]['01'] || 0) +
                                 (reportData.people[r]['02'] || 0) +
                                 (reportData.people[r]['03'] || 0) +
                                 (reportData.people[r]['04'] || 0) +
-                                (reportData.people[r]['05'] || 0), 0).toLocaleString()}</b></TableCell>
+                                (reportData.people[r]['05'] || 0) +
+                                (reportData.people[r]['06'] || 0), 0).toLocaleString()}</b></TableCell>
                             </TableRow>
                         </TableBody>
                         </Table>

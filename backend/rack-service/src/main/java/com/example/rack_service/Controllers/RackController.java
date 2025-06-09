@@ -1,32 +1,27 @@
 package com.example.rack_service.Controllers;
 
 import com.example.rack_service.Services.RackService;
-import com.example.rack_service.dto.RackEventDTO;
+import com.example.rack_service.dto.ReservationDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/rack")
+@CrossOrigin("*")
 public class RackController {
 
-    private final RackService rackService;
+    @Autowired
+    RackService rackService;
 
-    public RackController(RackService rackService) {
-        this.rackService = rackService;
+    @GetMapping("/reservations")
+    public ResponseEntity<List<ReservationDTO>> getRackReservations() {
+        return ResponseEntity.ok(rackService.getAllReservations());
     }
 
-    @GetMapping("/week")
-    public List<RackEventDTO> getWeekRack(
-            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
-    ) {
-        return rackService.getWeekRack(from, to);
-    }
 }
 

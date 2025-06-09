@@ -1,13 +1,14 @@
 package com.example.report_service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 import java.util.Map;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class ReportResponseDTO {
-    private Map<String, Map<String, Long>> turns;
-    private Map<String, Map<String, Long>> people;
+    private Map<Integer, Map<String, Double>> turns;
+    private Map<String, Map<String, Double>> people;
 }

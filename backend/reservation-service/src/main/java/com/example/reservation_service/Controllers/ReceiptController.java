@@ -2,6 +2,7 @@ package com.example.reservation_service.Controllers;
 
 import com.example.reservation_service.Entities.ReceiptEntity;
 import com.example.reservation_service.Services.ReceiptService;
+import com.example.reservation_service.dto.ReceiptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,11 @@ public class ReceiptController {
     @Autowired
     ReceiptService receiptService;
 
+    @GetMapping("/minimal")
+    public ResponseEntity<List<ReceiptDTO>> getMinimalReceipts() {
+        List<ReceiptDTO> receipts = receiptService.getMinimalReceipts();
+        return ResponseEntity.ok(receipts);
+    }
 
     @PostMapping("/")
     public ResponseEntity<?> createReceipt(@RequestBody ReceiptEntity receipt) {
@@ -69,5 +75,7 @@ public class ReceiptController {
         int receipts = receiptService.getMonthlyFrequency(rut, date);
         return ResponseEntity.ok(receipts);
     }
+
+
 
 }

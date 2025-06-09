@@ -3,6 +3,8 @@ package com.example.reservation_service.Controllers;
 import com.example.reservation_service.Entities.ReservationEntity;
 import com.example.reservation_service.Services.ReceiptService;
 import com.example.reservation_service.Services.ReservationService;
+import com.example.reservation_service.dto.RackReservationDTO;
+import com.example.reservation_service.dto.ReservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/reservation/")
+@RequestMapping("/api/reservation")
 @CrossOrigin("*")
 public class ReservationController {
     @Autowired
@@ -27,6 +29,18 @@ public class ReservationController {
     public ResponseEntity<List<ReservationEntity>> listAllReservations() {
         List<ReservationEntity> reservation = reservationService.getReservations();
         return ResponseEntity.ok(reservation);
+    }
+
+    @GetMapping("/minimal")
+    public ResponseEntity<List<ReservationDTO>> getMinimalReservations() {
+        List<ReservationDTO> reservations = reservationService.getMinimalReservations();
+        return ResponseEntity.ok(reservations);
+    }
+
+    @GetMapping("/rack")
+    public ResponseEntity<List<RackReservationDTO>> getAllForRack() {
+        List<RackReservationDTO> data = reservationService.getAllForRack();
+        return ResponseEntity.ok(data);
     }
 
     @GetMapping("/{idReservation}")

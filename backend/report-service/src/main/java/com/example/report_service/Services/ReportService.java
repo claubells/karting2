@@ -3,6 +3,8 @@ package com.example.report_service.Services;
 import com.example.report_service.dto.ReceiptDTO;
 import com.example.report_service.dto.ReservationDTO;
 import com.example.report_service.dto.ReportResponseDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -11,56 +13,97 @@ import java.util.*;
 @Service
 public class ReportService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    RestTemplate restTemplate;
+    private final List<String> months = List.of("01", "02", "03", "04", "05", "06");
 
-    public ReportResponseDTO generateSummary() {
-        ReservationDTO[] reservas = restTemplate.getForObject(
-                "http://localhost:8081/api/v1/reservation/",
-                ReservationDTO[].class
-        );
+    public ReportResponseDTO generateReportByTurns() {
+        List<ReservationDTO> reservations = fetchReservations();
+        List<ReceiptDTO> receipts = fetchReceipts();
 
-        Map<String, Map<String, Long>> porTurnos = new LinkedHashMap<>();
-        Map<String, Map<String, Long>> porGrupos = new LinkedHashMap<>();
+        Map<Integer, Map<String, Double>> turnsData = new HashMap<>();
 
-        for (ReservationDTO r : reservas) {
-            String month = r.getDateReservation().substring(5, 7); // ej: "04"
-            int turns = r.getTurnsTimeReservation();
-            int group = r.getGroupSizeReservation();
+        for (int laps : List.of(10, 15, 20)) {
+            Map<String, Double> monthMap = new HashMap<>();
+            for (String m : months) {
+                monthMap.put(m, 0.0);
+            }
+            turnsData.put(laps, monthMap);
+        }
 
-            ReceiptDTO[] receipts = restTemplate.getForObject(
-                    "http://localhost:8082/api/v1/receipt/by-reservation-id?reservationId=" + r.getIdReservation(),
-                    ReceiptDTO[].class
-            );
+        for (ReservationDTO reservation : reservations) {
+            String mes = String.format("%02d", reservation.getDateReservation().getMonthValue());
+            int turns = reservation.getTurnsTimeReservation();
 
-            for (ReceiptDTO rec : receipts) {
-                long ingreso = Math.round(rec.getBaseRateReceipt());
+            if (!months.contains(mes) || !turnsData.containsKey(turns)) continue;
 
-                // Por tipo de turno
-                porTurnos
-                        .computeIfAbsent(String.valueOf(turns), k -> initMonthMap())
-                        .merge(month, ingreso, Long::sum);
-
-                // Por grupo
-                String rango = mapGroupToRange(group);
-                porGrupos
-                        .computeIfAbsent(rango, k -> initMonthMap())
-                        .merge(month, ingreso, Long::sum);
+            for (ReceiptDTO receipt : receipts) {
+                if (Objects.equals(receipt.getReservationId(), reservation.getIdReservation())) {
+                    double current = turnsData.get(turns).get(mes);
+                    turnsData.get(turns).put(mes, current + receipt.getBaseRateReceipt());
+                }
             }
         }
 
-        return new ReportResponseDTO(porTurnos, porGrupos);
+        ReportResponseDTO dto = new ReportResponseDTO();
+        dto.setTurns(turnsData);
+        return dto;
     }
 
-    private Map<String, Long> initMonthMap() {
-        Map<String, Long> m = new LinkedHashMap<>();
-        for (String mes : List.of("01", "02", "03", "04", "05")) m.put(mes, 0L);
-        return m;
+    public ReportResponseDTO generateReportByPeople() {
+        List<ReservationDTO> reservations = fetchReservations();
+        List<ReceiptDTO> receipts = fetchReceipts();
+
+        Map<String, Map<String, Double>> peopleData = new HashMap<>();
+        List<String> ranges = List.of("1-2", "3-5", "6-10", "11-15");
+
+        for (String range : ranges) {
+            Map<String, Double> monthMap = new HashMap<>();
+            for (String m : months) {
+                monthMap.put(m, 0.0);
+            }
+            peopleData.put(range, monthMap);
+        }
+
+        for (ReservationDTO reservation : reservations) {
+            String mes = String.format("%02d", reservation.getDateReservation().getMonthValue());
+            int group = reservation.getGroupSizeReservation();
+
+            String range = getRange(group);
+            if (range == null || !months.contains(mes)) continue;
+
+            for (ReceiptDTO receipt : receipts) {
+                if (Objects.equals(receipt.getReservationId(), reservation.getIdReservation())) {
+                    double current = peopleData.get(range).get(mes);
+                    peopleData.get(range).put(mes, current + receipt.getBaseRateReceipt());
+                }
+            }
+        }
+
+        ReportResponseDTO dto = new ReportResponseDTO();
+        dto.setPeople(peopleData);
+        return dto;
     }
 
-    private String mapGroupToRange(int group) {
-        if (group <= 2) return "1-2";
-        if (group <= 5) return "3-5";
-        if (group <= 10) return "6-10";
-        return "11-15";
+    private String getRange(int groupSize) {
+        if (groupSize >= 1 && groupSize <= 2) return "1-2";
+        if (groupSize >= 3 && groupSize <= 5) return "3-5";
+        if (groupSize >= 6 && groupSize <= 10) return "6-10";
+        if (groupSize >= 11 && groupSize <= 15) return "11-15";
+        return null;
     }
+
+    private List<ReservationDTO> fetchReservations() {
+        String url = "http://localhost:8096/api/reservation/minimal";
+        ResponseEntity<ReservationDTO[]> response = restTemplate.getForEntity(url, ReservationDTO[].class);
+        return Arrays.asList(response.getBody());
+    }
+
+    private List<ReceiptDTO> fetchReceipts() {
+        String url = "http://localhost:8096/api/receipt/minimal";
+        ResponseEntity<ReceiptDTO[]> response = restTemplate.getForEntity(url, ReceiptDTO[].class);
+        return Arrays.asList(response.getBody());
+    }
+
+
 }

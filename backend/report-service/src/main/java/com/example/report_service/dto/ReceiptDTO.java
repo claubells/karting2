@@ -1,12 +1,12 @@
 package com.example.report_service.dto;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReceiptDTO {
-    private Long idReceipt;
-    private String rutClientReceipt;
+    private Long reservationId;
     private double baseRateReceipt;
-    private double finalAmount;
-    private double ivaAmount;
 }

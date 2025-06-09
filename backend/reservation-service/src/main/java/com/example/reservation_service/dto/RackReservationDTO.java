@@ -1,5 +1,4 @@
-package com.example.rack_service.dto;
-
+package com.example.reservation_service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReservationDTO {
+public class RackReservationDTO {
     private Long idReservation;
     private String holdersReservation;
     private LocalDate dateReservation;
