@@ -10,8 +10,6 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
-import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceRGB;
 
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.List;
@@ -431,4 +428,12 @@ public class ReceiptService {
     }
 
 
+    public int obtenerIngresoPorVueltasYMes(int turns, String month) {
+        return receiptRepository.obtenerIngresoPorVueltasYMes(turns, month);
+    }
+
+
+    public int obtenerIngresoPorRangoYMes(int min, int max, String month) {
+        return receiptRepository.obtenerIngresoPorRangoYMes(min, max, month);
+    }
 }

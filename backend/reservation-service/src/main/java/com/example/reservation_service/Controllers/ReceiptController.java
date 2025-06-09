@@ -76,6 +76,23 @@ public class ReceiptController {
         return ResponseEntity.ok(receipts);
     }
 
+    @GetMapping("/reports/turns")
+    public ResponseEntity<Integer> getIngresoPorVueltasYMese(
+            @RequestParam int turns,
+            @RequestParam String month
+    ) {
+        int total = receiptService.obtenerIngresoPorVueltasYMes(turns, month);
+        return ResponseEntity.ok(total);
+    }
 
+    @GetMapping("/reports/people")
+    public ResponseEntity<Integer> getIngresoPorGrupoYMese(
+            @RequestParam int min,
+            @RequestParam int max,
+            @RequestParam String month
+    ) {
+        int total = receiptService.obtenerIngresoPorRangoYMes(min, max, month);
+        return ResponseEntity.ok(total);
+    }
 
 }

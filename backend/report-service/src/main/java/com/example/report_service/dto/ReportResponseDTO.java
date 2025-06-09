@@ -9,6 +9,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportResponseDTO {
-    private Map<Integer, Map<String, Double>> turns;
-    private Map<String, Map<String, Double>> people;
+    private Map<String, Map<String, Integer>> turns;
+    private Map<String, Map<String, Integer>> people;
 }

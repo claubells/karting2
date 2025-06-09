@@ -1,4 +1,5 @@
 package com.example.loyaltydiscount_service.Services;
+
 import com.example.loyaltydiscount_service.Entities.ClientEntity;
 import com.example.loyaltydiscount_service.Repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;

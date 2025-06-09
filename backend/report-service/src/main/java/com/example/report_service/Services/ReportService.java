@@ -15,73 +15,51 @@ public class ReportService {
 
     @Autowired
     RestTemplate restTemplate;
+
     private final List<String> months = List.of("01", "02", "03", "04", "05", "06");
 
     public ReportResponseDTO generateReportByTurns() {
-        List<ReservationDTO> reservations = fetchReservations();
-        List<ReceiptDTO> receipts = fetchReceipts();
 
-        Map<Integer, Map<String, Double>> turnsData = new HashMap<>();
+        Map<String, Map<String, Integer>> turnsMap = new HashMap<>();
 
-        for (int laps : List.of(10, 15, 20)) {
-            Map<String, Double> monthMap = new HashMap<>();
-            for (String m : months) {
-                monthMap.put(m, 0.0);
+        for (String tipo : List.of("10", "15", "20")) {
+            Map<String, Integer> porMes = new HashMap<>();
+            for (String mes : List.of("01", "02", "03", "04", "05", "06")) {
+                int ingreso = obtenerIngresoPorVueltasYMes(tipo, mes); // ← tu método actual
+                porMes.put(mes, ingreso);
             }
-            turnsData.put(laps, monthMap);
-        }
 
-        for (ReservationDTO reservation : reservations) {
-            String mes = String.format("%02d", reservation.getDateReservation().getMonthValue());
-            int turns = reservation.getTurnsTimeReservation();
+            // Calcular total y agregar
+            int total = porMes.values().stream().mapToInt(i -> i).sum();
+            porMes.put("total", total);
 
-            if (!months.contains(mes) || !turnsData.containsKey(turns)) continue;
-
-            for (ReceiptDTO receipt : receipts) {
-                if (Objects.equals(receipt.getReservationId(), reservation.getIdReservation())) {
-                    double current = turnsData.get(turns).get(mes);
-                    turnsData.get(turns).put(mes, current + receipt.getBaseRateReceipt());
-                }
-            }
+            turnsMap.put(tipo, porMes);
         }
 
         ReportResponseDTO dto = new ReportResponseDTO();
-        dto.setTurns(turnsData);
+        dto.setTurns(turnsMap);
         return dto;
     }
 
     public ReportResponseDTO generateReportByPeople() {
-        List<ReservationDTO> reservations = fetchReservations();
-        List<ReceiptDTO> receipts = fetchReceipts();
 
-        Map<String, Map<String, Double>> peopleData = new HashMap<>();
-        List<String> ranges = List.of("1-2", "3-5", "6-10", "11-15");
+        Map<String, Map<String, Integer>> peopleMap = new HashMap<>();
 
-        for (String range : ranges) {
-            Map<String, Double> monthMap = new HashMap<>();
-            for (String m : months) {
-                monthMap.put(m, 0.0);
+        for (String rango : List.of("1-2", "3-5", "6-10", "11-15")) {
+            Map<String, Integer> porMes = new HashMap<>();
+            for (String mes : List.of("01", "02", "03", "04", "05", "06")) {
+                int ingreso = obtenerIngresoPorRangoYMes(rango, mes); // ← tu lógica actual
+                porMes.put(mes, ingreso);
             }
-            peopleData.put(range, monthMap);
-        }
 
-        for (ReservationDTO reservation : reservations) {
-            String mes = String.format("%02d", reservation.getDateReservation().getMonthValue());
-            int group = reservation.getGroupSizeReservation();
-
-            String range = getRange(group);
-            if (range == null || !months.contains(mes)) continue;
-
-            for (ReceiptDTO receipt : receipts) {
-                if (Objects.equals(receipt.getReservationId(), reservation.getIdReservation())) {
-                    double current = peopleData.get(range).get(mes);
-                    peopleData.get(range).put(mes, current + receipt.getBaseRateReceipt());
-                }
-            }
+            // Calcular total
+            int total = porMes.values().stream().mapToInt(i -> i).sum();
+            porMes.put("total", total);
+            peopleMap.put(rango, porMes);
         }
 
         ReportResponseDTO dto = new ReportResponseDTO();
-        dto.setPeople(peopleData);
+        dto.setPeople(peopleMap);
         return dto;
     }
 
@@ -105,5 +83,18 @@ public class ReportService {
         return Arrays.asList(response.getBody());
     }
 
+    public int obtenerIngresoPorVueltasYMes(String tipo, String mes) {
+        String url = "http://localhost:8096/api/receipt/reports/turns?turns=" + tipo + "&month=" + mes;
+        return restTemplate.getForObject(url, Integer.class);
+    }
+
+    public int obtenerIngresoPorRangoYMes(String rango, String mes) {
+        String[] partes = rango.split("-");
+        int min = Integer.parseInt(partes[0]);
+        int max = Integer.parseInt(partes[1]);
+
+        String url = "http://localhost:8096/api/receipt/reports/people?min=" + min + "&max=" + max + "&month=" + mes;
+        return restTemplate.getForObject(url, Integer.class);
+    }
 
 }

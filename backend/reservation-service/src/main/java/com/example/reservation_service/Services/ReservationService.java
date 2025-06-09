@@ -3,14 +3,12 @@ package com.example.reservation_service.Services;
 import com.example.reservation_service.Entities.ReservationEntity;
 import com.example.reservation_service.Repositories.ReceiptRepository;
 import com.example.reservation_service.Repositories.ReservationRepository;
-import com.example.reservation_service.dto.ClientDTO;
 import com.example.reservation_service.dto.KartDTO;
 import com.example.reservation_service.dto.RackReservationDTO;
 import com.example.reservation_service.dto.ReservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;

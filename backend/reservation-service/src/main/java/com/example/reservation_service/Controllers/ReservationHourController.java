@@ -1,7 +1,5 @@
 package com.example.reservation_service.Controllers;
 
-import com.example.reservation_service.Entities.ReservationEntity;
-import com.example.reservation_service.Repositories.ReservationHourRepository;
 import com.example.reservation_service.Services.ReservationHourService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

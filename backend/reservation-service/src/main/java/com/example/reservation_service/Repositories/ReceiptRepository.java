@@ -34,4 +34,22 @@ public interface ReceiptRepository extends JpaRepository<ReceiptEntity, Long> {
       AND EXTRACT(YEAR FROM re.dateReservation) = :year
       AND EXTRACT(MONTH FROM re.dateReservation) = :month""")
     int countReceiptsByRutAndMonth(@Param("rut") String rut, @Param("year") int year, @Param("month") int month);
+
+    @Query("""
+    SELECT COALESCE(SUM(r.totalAmount), 0)
+    FROM ReceiptEntity r
+    JOIN ReservationEntity re ON r.reservationId = re.idReservation
+    WHERE re.groupSizeReservation BETWEEN :min AND :max
+    AND FUNCTION('TO_CHAR', re.dateReservation, 'MM') = :mes
+    """)
+    int obtenerIngresoPorRangoYMes(@Param("min") int min, @Param("max") int max, @Param("mes") String mes);
+
+    @Query("""
+    SELECT COALESCE(SUM(r.totalAmount), 0)
+    FROM ReceiptEntity r
+    JOIN ReservationEntity re ON r.reservationId = re.idReservation
+    WHERE re.turnsTimeReservation = :turns
+    AND FUNCTION('TO_CHAR', re.dateReservation, 'MM') = :mes
+    """)
+    int obtenerIngresoPorVueltasYMes(@Param("turns") int turns, @Param("mes") String mes);
 }

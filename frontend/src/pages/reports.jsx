@@ -96,41 +96,24 @@ export default function Reports() {
                                     {['10', '15', '20'].map((turns) => (
                                         <TableRow key={turns}>
                                             <TableCell>{turns} vueltas o máx {turns} min</TableCell>
-                                            <TableCell>${reportData.turns[turns]['01'] ? reportData.turns[turns]['01'].toLocaleString() : '0'}</TableCell>
-                                            <TableCell>${reportData.turns[turns]['02'] ? reportData.turns[turns]['02'].toLocaleString() : '0'}</TableCell>
-                                            <TableCell>${reportData.turns[turns]['03'] ? reportData.turns[turns]['03'].toLocaleString() : '0'}</TableCell>
-                                            <TableCell>${reportData.turns[turns]['04'] ? reportData.turns[turns]['04'].toLocaleString() : '0'}</TableCell>
-                                            <TableCell>${reportData.turns[turns]['05'] ? reportData.turns[turns]['05'].toLocaleString() : '0'}</TableCell>
-                                            <TableCell>${reportData.turns[turns]['06'] ? reportData.turns[turns]['06'].toLocaleString() : '0'}</TableCell>
-                                            <TableCell>${(
-                                                    (reportData.turns[turns]['01'] || 0) +
-                                                    (reportData.turns[turns]['02'] || 0) +
-                                                    (reportData.turns[turns]['03'] || 0) +
-                                                    (reportData.turns[turns]['04'] || 0) +
-                                                    (reportData.turns[turns]['05'] || 0) +
-                                                    (reportData.turns[turns]['06'] || 0)
-                                                ).toLocaleString()}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
+                                            <TableCell>${reportData.turns[turns]['01']?.toLocaleString() || '0'}</TableCell>
+                                            <TableCell>${reportData.turns[turns]['02']?.toLocaleString() || '0'}</TableCell>
+                                            <TableCell>${reportData.turns[turns]['03']?.toLocaleString() || '0'}</TableCell>
+                                            <TableCell>${reportData.turns[turns]['04']?.toLocaleString() || '0'}</TableCell>
+                                            <TableCell>${reportData.turns[turns]['05']?.toLocaleString() || '0'}</TableCell>
+                                            <TableCell>${reportData.turns[turns]['06']?.toLocaleString() || '0'}</TableCell>
+                                            <TableCell>${reportData.turns[turns]['total']?.toLocaleString() || '0'}</TableCell>
+                                            </TableRow>
+                                        ))}
                                     <TableRow sx={{ backgroundColor: '#424242' }}>
                                         <TableCell><b>TOTAL</b></TableCell>
-                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['01'], 0).toLocaleString()}</b></TableCell>
-                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['02'], 0).toLocaleString()}</b></TableCell>
-                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['03'], 0).toLocaleString()}</b></TableCell>
-                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['04'], 0).toLocaleString()}</b></TableCell>
-                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['05'], 0).toLocaleString()}</b></TableCell>
-                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + reportData.turns[t]['06'], 0).toLocaleString()}</b></TableCell>
-                                        <TableCell><b>${['10', '15', '20'].reduce(
-                                                    (sum, t) =>sum +
-                                                        reportData.turns[t]['01'] +
-                                                        reportData.turns[t]['02'] +
-                                                        reportData.turns[t]['03'] +
-                                                        reportData.turns[t]['04'] +
-                                                        reportData.turns[t]['05'] +
-                                                        reportData.turns[t]['06'], 0
-                                                ).toLocaleString()}</b>
-                                        </TableCell>
+                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + (reportData.turns[t]['01'] || 0), 0).toLocaleString()}</b></TableCell>
+                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + (reportData.turns[t]['02'] || 0), 0).toLocaleString()}</b></TableCell>
+                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + (reportData.turns[t]['03'] || 0), 0).toLocaleString()}</b></TableCell>
+                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + (reportData.turns[t]['04'] || 0), 0).toLocaleString()}</b></TableCell>
+                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + (reportData.turns[t]['05'] || 0), 0).toLocaleString()}</b></TableCell>
+                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + (reportData.turns[t]['06'] || 0), 0).toLocaleString()}</b></TableCell>
+                                        <TableCell><b>${['10', '15', '20'].reduce((sum, t) => sum + (reportData.turns[t]['total'] || 0), 0).toLocaleString()}</b></TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
@@ -163,38 +146,24 @@ export default function Reports() {
                             {['1-2', '3-5', '6-10', '11-15'].map((range) => (
                             <TableRow key={range}>
                                 <TableCell>{range} personas</TableCell>
-                                <TableCell>${reportData.people[range]['01'] ? reportData.people[range]['01'].toLocaleString() : '0'}</TableCell>
-                                <TableCell>${reportData.people[range]['02'] ? reportData.people[range]['02'].toLocaleString() : '0'}</TableCell>
-                                <TableCell>${reportData.people[range]['03'] ? reportData.people[range]['03'].toLocaleString() : '0'}</TableCell>
-                                <TableCell>${reportData.people[range]['04'] ? reportData.people[range]['04'].toLocaleString() : '0'}</TableCell>
-                                <TableCell>${reportData.people[range]['05'] ? reportData.people[range]['05'].toLocaleString() : '0'}</TableCell>
-                                <TableCell>${reportData.people[range]['06'] ? reportData.people[range]['06'].toLocaleString() : '0'}</TableCell>
-                                <TableCell>${(
-                                (reportData.people[range]['01'] || 0) +
-                                (reportData.people[range]['02'] || 0) +
-                                (reportData.people[range]['03'] || 0) +
-                                (reportData.people[range]['04'] || 0) +
-                                (reportData.people[range]['05'] || 0) +
-                                (reportData.people[range]['06'] || 0)
-                                ).toLocaleString()}</TableCell>
-                            </TableRow>
+                                <TableCell>${reportData.people[range]['01']?.toLocaleString() || '0'}</TableCell>
+                                <TableCell>${reportData.people[range]['02']?.toLocaleString() || '0'}</TableCell>
+                                <TableCell>${reportData.people[range]['03']?.toLocaleString() || '0'}</TableCell>
+                                <TableCell>${reportData.people[range]['04']?.toLocaleString() || '0'}</TableCell>
+                                <TableCell>${reportData.people[range]['05']?.toLocaleString() || '0'}</TableCell>
+                                <TableCell>${reportData.people[range]['06']?.toLocaleString() || '0'}</TableCell>
+                                <TableCell>${reportData.people[range]['total']?.toLocaleString() || '0'}</TableCell>
+                                </TableRow>
                             ))}
                             <TableRow sx={{ backgroundColor: '#424242' }}>
-                            <TableCell><b>TOTAL</b></TableCell>
-                            <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['01'] || 0), 0).toLocaleString()}</b></TableCell>
-                            <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['02'] || 0), 0).toLocaleString()}</b></TableCell>
-                            <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['03'] || 0), 0).toLocaleString()}</b></TableCell>
-                            <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['04'] || 0), 0).toLocaleString()}</b></TableCell>
-                            <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['05'] || 0), 0).toLocaleString()}</b></TableCell>
-                            <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['06'] || 0), 0).toLocaleString()}</b></TableCell>
-                            <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) =>
-                                sum +
-                                (reportData.people[r]['01'] || 0) +
-                                (reportData.people[r]['02'] || 0) +
-                                (reportData.people[r]['03'] || 0) +
-                                (reportData.people[r]['04'] || 0) +
-                                (reportData.people[r]['05'] || 0) +
-                                (reportData.people[r]['06'] || 0), 0).toLocaleString()}</b></TableCell>
+                                <TableCell><b>TOTAL</b></TableCell>
+                                <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['01'] || 0), 0).toLocaleString()}</b></TableCell>
+                                <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['02'] || 0), 0).toLocaleString()}</b></TableCell>
+                                <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['03'] || 0), 0).toLocaleString()}</b></TableCell>
+                                <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['04'] || 0), 0).toLocaleString()}</b></TableCell>
+                                <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['05'] || 0), 0).toLocaleString()}</b></TableCell>
+                                <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['06'] || 0), 0).toLocaleString()}</b></TableCell>
+                                <TableCell><b>${['1-2', '3-5', '6-10', '11-15'].reduce((sum, r) => sum + (reportData.people[r]['total'] || 0), 0).toLocaleString()}</b></TableCell>
                             </TableRow>
                         </TableBody>
                         </Table>
