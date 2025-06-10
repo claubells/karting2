@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 @FeignClient(value = "reservation-service",
         path = "/api/loyalty",
+        contextId = "reservationToLoyaltyFeign",
         configuration = {FeignClient.class})
 public interface LoyaltyFeignClient {
 

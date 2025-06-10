@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 @FeignClient(value = "reservation-service",
         path = "/api/birthday",
+        contextId = "reservationToBirthdayFeign",
         configuration = {FeignClient.class})
 public interface BirthdayFeignClient {
 

@@ -9,6 +9,7 @@ import java.util.List;
 
 @FeignClient(value = "report-service",
         path = "/api/receipt",
+        contextId = "reportToReceipt",
         configuration = {FeignClient.class})
 public interface ReceiptFeignClient {
 

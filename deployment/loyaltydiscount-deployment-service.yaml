@@ -59,6 +59,6 @@ spec:
     app: loyaltydiscount-deployment
   ports:
     - protocol: TCP
-     port: 8091
+      port: 8091
       targetPort: 8091
   type: ClusterIP
