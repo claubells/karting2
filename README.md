@@ -50,7 +50,7 @@ minikube start
 
 Ahora levantamos los archivos:
 ---
-kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/backend/deployment
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment
 ---
 
 Pero si queremos en orden:
