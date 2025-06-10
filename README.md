@@ -41,7 +41,7 @@ Para crear las imagenes con docker compose:
 ---
 docker compose build
 docker compose push
----
+
 
 
 Se debe tener instalado minikube y lo iniciamos con docker desde WSL2:
