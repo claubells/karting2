@@ -1,0 +1,60 @@
+services:
+  config-server:
+    build:
+      context: ./backend/config-server
+      dockerfile: Dockerfile
+    image: claubells/config-server:latest
+
+  eureka-server:
+    build:
+      context: ./backend/eureka-server
+      dockerfile: Dockerfile
+    image: claubells/eureka-server:latest
+
+  gateway-server:
+    build:
+      context: ./backend/gateway-server
+      dockerfile: Dockerfile
+    image: claubells/gateway-server:latest
+
+  loyaltydiscount-service:
+    build:
+      context: ./backend/loyaltydiscount-service
+      dockerfile: Dockerfile
+    image: claubells/loyaltydiscount-service:latest
+
+  peoplediscount-service:
+    build:
+      context: ./backend/peoplediscount-service
+      dockerfile: Dockerfile
+    image: claubells/peoplediscount-service:latest
+
+  rack-service:
+    build:
+      context: ./backend/rack-service
+      dockerfile: Dockerfile
+    image: claubells/rack-service:latest
+
+  report-service:
+    build:
+      context: ./backend/report-service
+      dockerfile: Dockerfile
+    image: claubells/report-service:latest
+
+  reservation-service:
+    build:
+      context: ./backend/reservation-service
+      dockerfile: Dockerfile
+    image: claubells/reservation-service:latest
+
+  specialdaydiscount-service:
+    build:
+      context: ./backend/specialdaydiscount-service
+      dockerfile: Dockerfile
+    image: claubells/specialdaydiscount-service:latest
+
+  frontend-service:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: claubells/frontend-service:latest
