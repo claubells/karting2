@@ -17,6 +17,7 @@ public class LoyaltyDiscountController {
     @Autowired
     LoyaltyDiscountService loyaltyDiscountService;
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/{rut}/{date}")
     public ResponseEntity<Double> getLoyaltyDiscount(@PathVariable String rut, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         try {

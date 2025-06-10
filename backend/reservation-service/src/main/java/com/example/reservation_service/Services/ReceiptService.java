@@ -4,6 +4,7 @@ import com.example.reservation_service.Entities.ReceiptEntity;
 import com.example.reservation_service.Entities.ReservationEntity;
 import com.example.reservation_service.Repositories.ReceiptRepository;
 import com.example.reservation_service.Repositories.ReservationRepository;
+import com.example.reservation_service.clients.*;
 import com.example.reservation_service.dto.ReceiptDTO;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -38,7 +39,19 @@ public class ReceiptService {
     private JavaMailSender mailSender;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private ClientFeignClient clientFeignClient;
+
+    @Autowired
+    private RatesFeignClient ratesFeignClient;
+
+    @Autowired
+    private LoyaltyFeignClient loyaltyFeignClient;
+
+    @Autowired
+    private PeopleFeignClient peopleFeignClient;
+
+    @Autowired
+    private BirthdayFeignClient birthdayFeignClient;
 
     public List<ReceiptDTO> getMinimalReceipts() {
         return receiptRepository.findAll().stream()
@@ -60,45 +73,31 @@ public class ReceiptService {
             ReservationEntity reservation = reservationRepository.findById(reservationId)
                     .orElseThrow(() -> new RuntimeException("No se encontró la reserva con ID: " + reservationId));
 
-            // GET name by rut cliente
-            String url1 = "http://localhost:8091/api/client/getname/" + receipt.getRutClientReceipt();
-
-            String nameClient = restTemplate.getForObject(url1, String.class);
-
-            if (nameClient.isEmpty()) {
-                System.out.println("El nombre de cliente no existe.");
-                return null;
-            }
+            String nameClient = clientFeignClient.getNameClientByRut(receipt.getRutClientReceipt());
 
             //seteamos el nombre del cliente en el Receipt
             receipt.setNameClientReceipt(nameClient);
 
             // GET baseRate by laps
-            String url2 = "http://localhost:8094/api/rates/laps/" + reservation.getTurnsTimeReservation();
-            Double baseRate = restTemplate.getForObject(url2, Double.class);
-            if(baseRate == null){
-                System.out.println("El precio de laps no existe.");
-                return null;
-            }
+            Double baseRate = ratesFeignClient.getRatesByLaps(reservation.getTurnsTimeReservation());
             receipt.setBaseRateReceipt(baseRate);
 
-
-            double groupSizeDiscount = getGroupSizeDiscount(reservation.getGroupSizeReservation());
+            double groupSizeDiscount = peopleFeignClient.getPeopleDiscount(reservation.getGroupSizeReservation());
             receipt.setGroupSizeDiscount(groupSizeDiscount);
 
             double birthdayDiscount = getBirthdayDiscount(receipt.getRutClientReceipt(), reservation.getDateReservation(), reservation.getGroupSizeReservation());
             receipt.setBirthdayDiscount(birthdayDiscount);
 
-            double loyalityDiscount = getFrequencyDiscount(receipt.getRutClientReceipt(), reservation.getDateReservation());
+            double loyalityDiscount = loyaltyFeignClient.getLoyaltyDiscount(receipt.getRutClientReceipt(), reservation.getDateReservation());
             receipt.setLoyaltyDiscount(loyalityDiscount);
 
             double specialDaysDiscount = receipt.getSpecialDaysDiscount();
             receipt.setSpecialDaysDiscount(specialDaysDiscount);
 
             double maxDiscount = getMaxDiscount(
-                    receipt.getGroupSizeDiscount(),
-                    receipt.getBirthdayDiscount(),
-                    receipt.getLoyaltyDiscount(),
+                    groupSizeDiscount,
+                    groupSizeDiscount,
+                    loyalityDiscount,
                     specialDaysDiscount
             );
             receipt.setMaxDiscount(maxDiscount);
@@ -116,10 +115,7 @@ public class ReceiptService {
             reservation.setStatusReservation("pagada");
 
             // Obtener el email del cliente
-            String emailClient = restTemplate.getForObject(
-                    "http://localhost:8091/api/client/getemail/" + receipt.getRutClientReceipt(),
-                    String.class
-            );
+            String emailClient = clientFeignClient.getEmailClientByRut(receipt.getRutClientReceipt());
 
             String normalizedEmail = emailClient.toLowerCase();
             if (normalizedEmail.endsWith("@gmail.com") ||
@@ -143,24 +139,11 @@ public class ReceiptService {
         }
     }
 
-    private double getGroupSizeDiscount(int groupSizeReservation) {
-        String url = "http://localhost:8092/api/people/discount/" + groupSizeReservation;
-        Double baseRate = restTemplate.getForObject(url, Double.class);
-        if(baseRate == null){
-            System.out.println("El precio de laps no existe.");
-            return 0.0;
-        }
-        return baseRate;
-    }
-
     public double getBirthdayDiscount(String rutClient, LocalDate reservationDate, int groupSizeReservation) {
-        String url1 = "http://localhost:8091/api/client/getbirthdate/" + rutClient;
-
-        LocalDate birthdateClient = restTemplate.getForObject(url1, LocalDate.class);
+        LocalDate birthdateClient = clientFeignClient.getBirthdateClientByRut(rutClient);
 
         if (birthdateClient.getDayOfMonth() == reservationDate.getDayOfMonth() && birthdateClient.getMonthValue() == reservationDate.getMonthValue()) {
-            String url = "http://localhost:8097/api/birthday/discount/" + birthdateClient + reservationDate + groupSizeReservation;
-            Double discount = restTemplate.getForObject(url, Double.class);
+            Double discount = birthdayFeignClient.GetBirthdayDiscount(birthdateClient, reservationDate, groupSizeReservation);
 
             if(discount == null){
                 System.out.println("El descuento no se pudo calcular.");
@@ -182,9 +165,7 @@ public class ReceiptService {
                     .orElseThrow(() -> new RuntimeException("No se encontró la reserva con ID: " + receipt.getReservationId()));
 
             // GET name by rut client
-            String url1 = "http://localhost:8091/api/client/getname/" + receipt.getRutClientReceipt();
-
-            String nameClient = restTemplate.getForObject(url1, String.class);
+            String nameClient = clientFeignClient.getNameClientByRut(receipt.getRutClientReceipt());
 
             if (nameClient.isEmpty()) {
                 System.out.println("El nombre de cliente no existe.");
@@ -196,16 +177,11 @@ public class ReceiptService {
             System.out.println("Special day discount: " + receipt.getSpecialDaysDiscount());
 
             // GET baseRate by laps
-            String url2 = "http://localhost:8094/api/rates/laps/" + reservation.getTurnsTimeReservation();
-            Double baseRate = restTemplate.getForObject(url2, Double.class);
-            if(baseRate == null){
-                System.out.println("El precio de laps no existe.");
-                return null;
-            }
+            Double baseRate = ratesFeignClient.getRatesByLaps(reservation.getTurnsTimeReservation());
 
-            double groupSizeDiscount = getGroupSizeDiscount(reservation.getGroupSizeReservation());
+            double groupSizeDiscount = peopleFeignClient.getPeopleDiscount(reservation.getGroupSizeReservation());
             double birthdayDiscount = getBirthdayDiscount(receipt.getRutClientReceipt(), reservation.getDateReservation(), reservation.getGroupSizeReservation());
-            double loyaltyDiscount = getFrequencyDiscount(receipt.getRutClientReceipt(), reservation.getDateReservation());
+            double loyaltyDiscount = loyaltyFeignClient.getLoyaltyDiscount(receipt.getRutClientReceipt(), reservation.getDateReservation());
 
             double specialDaysDiscount = receipt.getSpecialDaysDiscount();
             receipt.setSpecialDaysDiscount(specialDaysDiscount);
@@ -221,7 +197,7 @@ public class ReceiptService {
             double ivaAmount = finalAmount * 0.19;
             double totalAmount = finalAmount + ivaAmount;
 
-            Long clientId = getClientId(receipt.getRutClientReceipt());
+            Long clientId = clientFeignClient.getIdClientByRut(receipt.getRutClientReceipt());
 
             // Crear objeto simulación
             ReceiptEntity simulated = new ReceiptEntity();
@@ -255,26 +231,6 @@ public class ReceiptService {
             System.out.println("El comprobante con ID: " + receipt.getIdReceipt() + " pertenece a la reserva con ID: " + receipt.getReservationId());
         }
         return reciepts;
-    }
-
-    public Long getClientId(String rut){
-        String url = "http://localhost:8091/api/client/getid/" + rut;
-        Long clientId = restTemplate.getForObject(url, Long.class);
-        if(clientId == null){
-            System.out.println("El id del cliente no existe rut: " + rut);
-            return null;
-        }
-        return clientId;
-    }
-
-    public Double getFrequencyDiscount(String rut, LocalDate date) {
-        String url = "http://localhost:8091/api/loyalty/" + rut + "/" + date;
-        Double descuento = restTemplate.getForObject(url, Double.class);
-        if(descuento == null){
-            System.out.println("No se pudo recuperar el descuento");
-            return 0.0;
-        }
-        return descuento;
     }
 
     public int getMonthlyFrequency(String rut, LocalDate date) {

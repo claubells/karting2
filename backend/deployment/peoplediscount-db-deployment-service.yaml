@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: peoplediscount-db-pv
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/peoplediscount-db-data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: peoplediscount-db-pvc
+  labels:
+    app: postgres
+    tier: database
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peoplediscount-db-deployment
+  labels:
+    app: peoplediscount-db-deployment
+    tier: database
+spec:
+  selector:
+    matchLabels:
+      app: peoplediscount-db-deployment
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: peoplediscount-db-deployment
+        tier: database
+    spec:
+      containers:
+        - name: peoplediscount-db
+          image: postgres
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: DB_USER_PEOPLE
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: DB_PASSWORD_PEOPLE
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: peoplediscount-db-data
+      volumes:
+        - name: peoplediscount-db-data
+          persistentVolumeClaim:
+            claimName: peoplediscount-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peoplediscount-db-service
+  labels:
+    app: peoplediscount-db-service
+    tier: database
+spec:
+  ports:
+    - port: 5433
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: peoplediscount-db-deployment
+    tier: database
+  type: LoadBalancer

@@ -31,12 +31,14 @@ public class ReservationController {
         return ResponseEntity.ok(reservation);
     }
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/minimal")
     public ResponseEntity<List<ReservationDTO>> getMinimalReservations() {
         List<ReservationDTO> reservations = reservationService.getMinimalReservations();
         return ResponseEntity.ok(reservations);
     }
 
+    // Endpoint consumido por FeignClient desde Rack
     @GetMapping("/rack")
     public ResponseEntity<List<RackReservationDTO>> getAllForRack() {
         List<RackReservationDTO> data = reservationService.getAllForRack();

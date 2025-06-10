@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config-map
+  labels:
+    app: postgres-config-map
+data:
+  DB_HOST_LOYALTY: loyaltydiscount-db-service
+  DB_PORT_LOYALTY: "5432"
+  DB_DBNAME_LOYALTY: loyalty-db
+  DB_HOST_PEOPLE: peoplediscount-db-service
+  DB_PORT_PEOPLE: "5433"
+  DB_DBNAME_PEOPLE: people-db
+  DB_HOST_RATES: rates-db-service
+  DB_PORT_RATES: "5434"
+  DB_DBNAME_RATES: rates-db
+  DB_HOST_RESERVATION: reservation-db-service
+  DB_PORT_RESERVATION: "5435"
+  DB_DBNAME_RESERVATION: reservation-db
+  DB_HOST_HOLIDAYS: holidays-db-service
+  DB_PORT_HOLIDAYS: "5436"
+  DB_DBNAME_HOLIDAYS: holidays-db

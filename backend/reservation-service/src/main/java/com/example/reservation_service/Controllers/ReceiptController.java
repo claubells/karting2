@@ -19,6 +19,7 @@ public class ReceiptController {
     @Autowired
     ReceiptService receiptService;
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/minimal")
     public ResponseEntity<List<ReceiptDTO>> getMinimalReceipts() {
         List<ReceiptDTO> receipts = receiptService.getMinimalReceipts();
@@ -76,21 +77,16 @@ public class ReceiptController {
         return ResponseEntity.ok(receipts);
     }
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/reports/turns")
-    public ResponseEntity<Integer> getIngresoPorVueltasYMese(
-            @RequestParam int turns,
-            @RequestParam String month
-    ) {
+    public ResponseEntity<Integer> getIngresoPorVueltasYMese(@RequestParam int turns, @RequestParam String month) {
         int total = receiptService.obtenerIngresoPorVueltasYMes(turns, month);
         return ResponseEntity.ok(total);
     }
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/reports/people")
-    public ResponseEntity<Integer> getIngresoPorGrupoYMese(
-            @RequestParam int min,
-            @RequestParam int max,
-            @RequestParam String month
-    ) {
+    public ResponseEntity<Integer> getIngresoPorGrupoYMese(@RequestParam int min, @RequestParam int max, @RequestParam String month) {
         int total = receiptService.obtenerIngresoPorRangoYMes(min, max, month);
         return ResponseEntity.ok(total);
     }

@@ -13,6 +13,7 @@ public class RatesLapsController {
     @Autowired
     RatesLapsService ratesLapsService;
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/laps/{laps}")
     public ResponseEntity<Double> getRatesByLaps(@PathVariable int laps) {
         Double rate = ratesLapsService.getRateByLaps(laps);

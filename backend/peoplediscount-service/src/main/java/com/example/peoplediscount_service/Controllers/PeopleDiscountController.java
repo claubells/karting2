@@ -12,6 +12,7 @@ public class PeopleDiscountController {
     @Autowired
     PeopleDiscountServices peopleDiscountServices;
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/discount/{numberPeople}")
     public ResponseEntity<Double> getPeopleDiscount(@PathVariable int numberPeople) {
         Double rate = peopleDiscountServices.getPeopleDiscount(numberPeople);

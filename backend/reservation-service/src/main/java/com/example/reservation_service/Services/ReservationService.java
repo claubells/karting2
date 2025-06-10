@@ -3,17 +3,15 @@ package com.example.reservation_service.Services;
 import com.example.reservation_service.Entities.ReservationEntity;
 import com.example.reservation_service.Repositories.ReceiptRepository;
 import com.example.reservation_service.Repositories.ReservationRepository;
+import com.example.reservation_service.clients.RatesFeignClient;
 import com.example.reservation_service.dto.KartDTO;
 import com.example.reservation_service.dto.RackReservationDTO;
 import com.example.reservation_service.dto.ReservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +24,9 @@ public class ReservationService {
     @Autowired
     private ReceiptRepository receiptRepository;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private RatesFeignClient ratesFeignClient;
+
 
     public List<ReservationEntity> findReservationBetweenDates(LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
         return reservationRepository.findOverlappingReservations(fecha, horaInicio, horaFin);
@@ -79,7 +79,7 @@ public class ReservationService {
             }
 
             // Obtenemos los karts disponibles
-            List<KartDTO> disponibles = getAvailableKarts();
+            List<KartDTO> disponibles = ratesFeignClient.findAvailableKarts();
 
             // verificamos disponibilidad
             if (disponibles.size() < numberPeople) {
@@ -106,16 +106,6 @@ public class ReservationService {
             System.err.println("Error al crear la Reserva");
             e.printStackTrace();
             throw e;
-        }
-    }
-
-    public List<KartDTO> getAvailableKarts() {
-        try {
-            String url = "http://localhost:8094/api/kart/available/";
-            ResponseEntity<KartDTO[]> response = restTemplate.getForEntity(url, KartDTO[].class);
-            return Arrays.asList(response.getBody());
-        } catch (Exception e) {
-            throw new RuntimeException("Error al consultar los karts disponibles: " + e.getMessage());
         }
     }
 

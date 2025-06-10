@@ -18,6 +18,10 @@
         <option value="$PROJECT_DIR$/backend/specialdaydiscount/pom.xml" />
         <option value="$PROJECT_DIR$/backend/rates-service/pom.xml" />
         <option value="$PROJECT_DIR$/backend/report-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/config-server/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/eureka-server/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/gateway-server/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/specialdaydiscount-service/pom.xml" />
       </list>
     </option>
   </component>

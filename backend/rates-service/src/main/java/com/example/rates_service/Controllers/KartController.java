@@ -24,6 +24,7 @@ public class KartController {
         return ResponseEntity.ok(kart);
     }
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/available/")
     public ResponseEntity<List<KartEntity>> findAvailableKarts() {
         List<KartEntity> kart = kartService.getAvailableKarts();

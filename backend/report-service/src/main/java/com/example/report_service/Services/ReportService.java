@@ -1,10 +1,11 @@
 package com.example.report_service.Services;
 
+import com.example.report_service.clients.ReceiptFeignClient;
+import com.example.report_service.clients.ReservationFeignClient;
 import com.example.report_service.dto.ReceiptDTO;
 import com.example.report_service.dto.ReservationDTO;
 import com.example.report_service.dto.ReportResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,9 +15,10 @@ import java.util.*;
 public class ReportService {
 
     @Autowired
-    RestTemplate restTemplate;
+    ReservationFeignClient reservationFeignClient;
 
-    private final List<String> months = List.of("01", "02", "03", "04", "05", "06");
+    @Autowired
+    ReceiptFeignClient receiptFeignClient;
 
     public ReportResponseDTO generateReportByTurns() {
 
@@ -72,29 +74,23 @@ public class ReportService {
     }
 
     private List<ReservationDTO> fetchReservations() {
-        String url = "http://localhost:8096/api/reservation/minimal";
-        ResponseEntity<ReservationDTO[]> response = restTemplate.getForEntity(url, ReservationDTO[].class);
-        return Arrays.asList(response.getBody());
+        return reservationFeignClient.getMinimalReservations();
     }
 
     private List<ReceiptDTO> fetchReceipts() {
-        String url = "http://localhost:8096/api/receipt/minimal";
-        ResponseEntity<ReceiptDTO[]> response = restTemplate.getForEntity(url, ReceiptDTO[].class);
-        return Arrays.asList(response.getBody());
+        return receiptFeignClient.getMinimalReceipts();
     }
 
-    public int obtenerIngresoPorVueltasYMes(String tipo, String mes) {
-        String url = "http://localhost:8096/api/receipt/reports/turns?turns=" + tipo + "&month=" + mes;
-        return restTemplate.getForObject(url, Integer.class);
+    public int obtenerIngresoPorVueltasYMes(String tipoStr, String mes) {
+        int tipo = Integer.parseInt(tipoStr);
+        return receiptFeignClient.getIngresoPorVueltasYMese(tipo, mes);
     }
 
     public int obtenerIngresoPorRangoYMes(String rango, String mes) {
         String[] partes = rango.split("-");
         int min = Integer.parseInt(partes[0]);
         int max = Integer.parseInt(partes[1]);
-
-        String url = "http://localhost:8096/api/receipt/reports/people?min=" + min + "&max=" + max + "&month=" + mes;
-        return restTemplate.getForObject(url, Integer.class);
+        return receiptFeignClient.getIngresoPorGrupoYMese(min, max, mes);
     }
 
 }

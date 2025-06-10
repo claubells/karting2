@@ -62,6 +62,7 @@ public class ClientController {
         }
     }
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/getname/{rut}")
     public ResponseEntity<String> getNameClientByRut(@PathVariable String rut) {
         Optional<String> name = clientService.findNameByRut(rut);
@@ -73,6 +74,7 @@ public class ClientController {
         }
     }
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/getbirthdate/{rut}")
     public ResponseEntity<LocalDate> getBirthdateClientByRut(@PathVariable String rut) {
         Optional<LocalDate> date = clientService.findBirthdateByRut(rut);
@@ -87,6 +89,7 @@ public class ClientController {
         }
     }
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/getemail/{rut}")
     public ResponseEntity<String> getEmailClientByRut(@PathVariable String rut) {
         Optional<String> name = clientService.findEmailByRut(rut);
@@ -98,6 +101,7 @@ public class ClientController {
         }
     }
 
+    // Endpoint consumido por FeignClient
     @GetMapping("/getid/{rut}")
     public ResponseEntity<Long> getIdClientByRut(@PathVariable String rut) {
         Optional<Long> date = clientService.findIdByRut(rut);
@@ -110,17 +114,5 @@ public class ClientController {
             );
         }
     }
-
-    /*
-    @GetMapping("/discount-frequencies")
-    public ResponseEntity<Double> getClientlLoyaltyDiscount(@RequestParam String rut) {
-        try {
-            // se hace una solicitud http de todos los receipt de ese rut
-            // double all_receipt_by_rut =
-            return ResponseEntity.ok(discount);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(0.0);
-        }
-    }*/
 
 }

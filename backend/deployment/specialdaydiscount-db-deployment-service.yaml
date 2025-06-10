@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: specialdaydiscount-db-pv
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/specialdaydiscount-db-data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: specialdaydiscount-db-pvc
+  labels:
+    app: postgres
+    tier: database
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: specialdaydiscount-db-deployment
+  labels:
+    app: specialdaydiscount-db-deployment
+    tier: database
+spec:
+  selector:
+    matchLabels:
+      app: specialdaydiscount-db-deployment
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: specialdaydiscount-db-deployment
+        tier: database
+    spec:
+      containers:
+        - name: specialdaydiscount-db
+          image: postgres
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: DB_USER_HOLIDAYS
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: DB_PASSWORD_HOLIDAYS
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: specialdaydiscount-db-data
+      volumes:
+        - name: specialdaydiscount-db-data
+          persistentVolumeClaim:
+            claimName: specialdaydiscount-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: specialdaydiscount-db-service
+  labels:
+    app: specialdaydiscount-db-service
+    tier: database
+spec:
+  ports:
+    - port: 5436
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: specialdaydiscount-db-deployment
+    tier: database
+  type: LoadBalancer
