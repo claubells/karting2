@@ -35,6 +35,12 @@ services:
       dockerfile: Dockerfile
     image: claubells/rack-service:latest
 
+  rates-service:
+    build:
+      context: ./backend/rates-service
+      dockerfile: Dockerfile
+    image: claubells/rates-service:latest
+
   report-service:
     build:
       context: ./backend/report-service
