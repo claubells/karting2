@@ -47,3 +47,18 @@ spec:
                 secretKeyRef:
                   name: postgres-credentials
                   key: DB_PASSWORD_RATES
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rates-service
+  labels:
+    app: rates-deployment
+spec:
+  selector:
+    app: rates-deployment
+  ports:
+    - protocol: TCP
+      port: 8094
+      targetPort: 8094
+  type: ClusterIP

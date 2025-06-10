@@ -47,3 +47,18 @@ spec:
                 secretKeyRef:
                   name: postgres-credentials
                   key: DB_PASSWORD_HOLIDAYS
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: specialdaydiscount-service
+  labels:
+    app: specialdaydiscount-deployment
+spec:
+  selector:
+    app: specialdaydiscount-deployment
+  ports:
+    - protocol: TCP
+      port: 8097
+      targetPort: 8097
+  type: ClusterIP

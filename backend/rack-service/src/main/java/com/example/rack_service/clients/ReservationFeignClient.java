@@ -8,6 +8,7 @@ import java.util.List;
 
 @FeignClient(value = "rack-service",
         path = "/api/reservation",
+        contextId = "rackToReservationFeign",
         configuration = {FeignClient.class})
 public interface ReservationFeignClient {
 
