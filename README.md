@@ -37,8 +37,14 @@ docker build -t claubells/specialdaydiscount-service .
 docker push claubells/specialdaydiscount-service
 
 ---
+Para crear las imagenes con docker compose:
+---
+docker compose build
+docker compose push
+---
 
-Se debe tener instalado minikube y lo iniciamos con docker:
+
+Se debe tener instalado minikube y lo iniciamos con docker desde WSL2:
 ---
 minikube start --driver=docker
 ---
@@ -81,3 +87,10 @@ kubectl delete pv --all
 
 kubectl delete all --all
 ---
+
+Para entrar a la aplicación:
+1. Obtenemos la ip
+---
+minikube ip
+---
+2. http://<minikube-ip>:30777
