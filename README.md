@@ -40,6 +40,7 @@ docker push claubells/specialdaydiscount-service
 Para crear las imagenes con docker compose:
 ---
 docker compose build
+
 docker compose push
 
 
