@@ -80,10 +80,15 @@ kubectl get pods
 Este comando borra
 ---
 kubectl delete deployments --all
+
 kubectl delete configmap --all
+
 kubectl delete services --all
+
 kubectl delete secrets --all
+
 kubectl delete pvc --all
+
 kubectl delete pv --all
 
 kubectl delete all --all
