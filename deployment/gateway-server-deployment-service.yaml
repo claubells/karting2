@@ -22,16 +22,22 @@ spec:
           env:
             - name: CONFIG_SERVER_HOST
               value: "config-server-service"
+            - name: SPRING_CLOUD_CONFIG_URI
+              value: "http://config-server-service:8888"
             - name: EUREKA_HOST
               value: "eureka-server-service"
             - name: EUREKA_PORT
               value: "8761"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server-service:8761/eureka/"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "gateway-service"
             - name: INSTANCE_HOSTNAME
               value: "gateway-service"
             - name: SERVER_PORT
               value: "8080"
-            - name: SPRING_PROFILES_ACTIVE
-              value: "gateway-service"
+            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+              value: "http://eureka-server-service:8761/eureka/"
 ---
 apiVersion: v1
 kind: Service

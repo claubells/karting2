@@ -47,10 +47,16 @@ spec:
                   key: DB_PASSWORD_PEOPLE
             - name: CONFIG_SERVER_HOST
               value: "config-server-service"
+            - name: SPRING_CLOUD_CONFIG_URI
+              value: "http://config-server-service:8888"
             - name: EUREKA_HOST
               value: "eureka-server-service"
             - name: EUREKA_PORT
               value: "8761"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server-service:8761/eureka/"
+            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+              value: "http://eureka-server-service:8761/eureka/"
             - name: INSTANCE_HOSTNAME
               value: "peoplediscount-service"
 ---
