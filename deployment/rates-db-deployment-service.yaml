@@ -54,6 +54,8 @@ spec:
           ports:
             - containerPort: 5432
           env:
+            - name: POSTGRES_DB
+              value: "rates-db"
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
@@ -87,4 +89,4 @@ spec:
   selector:
     app: rates-db-deployment
     tier: database
-  type: LoadBalancer
+  type: ClusterIP

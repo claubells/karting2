@@ -87,4 +87,4 @@ spec:
   selector:
     app: loyaltydiscount-db-deployment
     tier: database
-  type: LoadBalancer
+  type: ClusterIP
