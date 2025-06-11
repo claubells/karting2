@@ -20,16 +20,11 @@ spec:
           ports:
             - containerPort: 8888
           env:
-          - name: SPRING_PROFILES_ACTIVE
-            value: "git"
-          - name: SPRING_CLOUD_CONFIG_SERVER_GIT_URI
-            value: "https://github.com/claubells/karting2.git"
-          - name: SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCHPATHS
-            value: "config"
-          - name: SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL
-            value: "main"
-          - name: SPRING_CLOUD_CONFIG_SERVER_GIT_CLONEONSTART
-            value: "true"
+            # Configuración que SÍ FUNCIONA - perfil nativo
+            - name: SPRING_PROFILES_ACTIVE
+              value: "native"
+            - name: SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS
+              value: "classpath:/"
 ---
 apiVersion: v1
 kind: Service

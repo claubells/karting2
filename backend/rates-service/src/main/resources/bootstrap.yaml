@@ -1,0 +1,10 @@
+spring:
+    application:
+        name: rates-service
+    cloud:
+        config:
+            enabled: true
+            uri: http://config-server-service:8888/
+    jpa:
+        hibernate:
+            ddl-auto: update

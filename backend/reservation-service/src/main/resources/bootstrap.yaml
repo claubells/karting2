@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: reservation-service
+  cloud:
+    config:
+      enabled: true
+      uri: http://config-server-service:8888/
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL}
+    password: ${PASSWORD_APP}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
