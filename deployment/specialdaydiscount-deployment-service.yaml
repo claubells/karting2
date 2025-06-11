@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: specialdaydiscount-service
-          image: claubells/loyaltydiscount-service
+          image: claubells/specialdaydiscount-service
           env:
             - name: SERVER_PORT
               value: "0"
@@ -45,6 +45,14 @@ spec:
                 secretKeyRef:
                   name: postgres-credentials
                   key: DB_PASSWORD_HOLIDAYS
+            - name: CONFIG_SERVER_HOST
+              value: "config-server-service"
+            - name: EUREKA_HOST
+              value: "eureka-server-service"
+            - name: EUREKA_PORT
+              value: "8761"
+            - name: INSTANCE_HOSTNAME
+              value: "specialdaydiscount-service"
 ---
 apiVersion: v1
 kind: Service

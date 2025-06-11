@@ -3,64 +3,64 @@ services:
     build:
       context: ./backend/config-server
       dockerfile: Dockerfile
-    image: claubells/config-server:latest
+    image: claubells/config-server
 
   eureka-server:
     build:
       context: ./backend/eureka-server
       dockerfile: Dockerfile
-    image: claubells/eureka-server:latest
+    image: claubells/eureka-server
 
   gateway-server:
     build:
       context: ./backend/gateway-server
       dockerfile: Dockerfile
-    image: claubells/gateway-server:latest
+    image: claubells/gateway-server
 
   loyaltydiscount-service:
     build:
       context: ./backend/loyaltydiscount-service
       dockerfile: Dockerfile
-    image: claubells/loyaltydiscount-service:latest
+    image: claubells/loyaltydiscount-service
 
   peoplediscount-service:
     build:
       context: ./backend/peoplediscount-service
       dockerfile: Dockerfile
-    image: claubells/peoplediscount-service:latest
+    image: claubells/peoplediscount-service
 
   rack-service:
     build:
       context: ./backend/rack-service
       dockerfile: Dockerfile
-    image: claubells/rack-service:latest
+    image: claubells/rack-service
 
   rates-service:
     build:
       context: ./backend/rates-service
       dockerfile: Dockerfile
-    image: claubells/rates-service:latest
+    image: claubells/rates-service
 
   report-service:
     build:
       context: ./backend/report-service
       dockerfile: Dockerfile
-    image: claubells/report-service:latest
+    image: claubells/report-service
 
   reservation-service:
     build:
       context: ./backend/reservation-service
       dockerfile: Dockerfile
-    image: claubells/reservation-service:latest
+    image: claubells/reservation-service
 
   specialdaydiscount-service:
     build:
       context: ./backend/specialdaydiscount-service
       dockerfile: Dockerfile
-    image: claubells/specialdaydiscount-service:latest
+    image: claubells/specialdaydiscount-service
 
   frontend-service:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: claubells/frontend-service:latest
+    image: claubells/frontend-service

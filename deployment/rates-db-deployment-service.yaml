@@ -55,7 +55,7 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_DB
-              value: "0"
+              value: "rates-db"
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:

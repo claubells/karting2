@@ -17,6 +17,6 @@ data:
   DB_HOST_RESERVATION: reservation-db-service
   DB_PORT_RESERVATION: "5432"
   DB_DBNAME_RESERVATION: reservation-db
-  DB_HOST_HOLIDAYS: holidays-db-service
+  DB_HOST_HOLIDAYS: specialdaydiscount-db-service
   DB_PORT_HOLIDAYS: "5432"
   DB_DBNAME_HOLIDAYS: holidays-db

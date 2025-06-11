@@ -18,14 +18,16 @@ spec:
         - name: report-service
           image: claubells/report-service
           env:
+            - name: SERVER_PORT
+              value: "0"
             - name: CONFIG_SERVER_HOST
-              value: "config-server"
+              value: "config-server-service"
             - name: EUREKA_HOST
-              value: "eureka-server"
+              value: "eureka-server-service"
             - name: EUREKA_PORT
               value: "8761"
             - name: INSTANCE_HOSTNAME
-              value: totalcost-service
+              value: "report-service"
 
 ---
 apiVersion: v1
@@ -35,8 +37,8 @@ metadata:
   labels:
     app: report-deployment
 spec:
+  clusterIP: None
   selector:
-    clusterIP: None
     app: report-deployment
   ports:
     - protocol: TCP

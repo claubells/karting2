@@ -46,13 +46,13 @@ spec:
                   name: postgres-credentials
                   key: DB_PASSWORD_LOYALTY
             - name: CONFIG_SERVER_HOST
-              value: "config-server"
+              value: "config-server-service"
             - name: EUREKA_HOST
-              value: "eureka-server"
+              value: "eureka-server-service"
             - name: EUREKA_PORT
               value: "8761"
             - name: INSTANCE_HOSTNAME
-              value: register-service
+              value: "loyaltydiscount-service"
 ---
 apiVersion: v1
 kind: Service
