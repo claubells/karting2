@@ -4,9 +4,9 @@ spring:
   application:
     name: rates-service
   datasource:
-    url: jdbc:postgresql://${DB_HOST:rates-db-service}:${DB_PORT:5432}/${DB_DBNAME:rates-db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:admin}
+    url: jdbc:postgresql://rates-db-service::5432/rates-db
+    username: postgres
+    password: admin
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
