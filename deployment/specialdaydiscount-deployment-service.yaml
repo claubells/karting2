@@ -17,8 +17,6 @@ spec:
       containers:
         - name: specialdaydiscount-service
           image: claubells/loyaltydiscount-service
-          ports:
-            - containerPort: 8097
           env:
             - name: SERVER_PORT
               value: "0"
@@ -55,10 +53,10 @@ metadata:
   labels:
     app: specialdaydiscount-deployment
 spec:
+  clusterIP: None
   selector:
     app: specialdaydiscount-deployment
   ports:
     - protocol: TCP
-      port: 8097
-      targetPort: 8097
-  type: ClusterIP
+      port: 8080
+      targetPort: 8080

@@ -17,8 +17,16 @@ spec:
       containers:
         - name: report-service
           image: claubells/report-service
-          ports:
-            - containerPort: 8095
+          env:
+            - name: CONFIG_SERVER_HOST
+              value: "config-server"
+            - name: EUREKA_HOST
+              value: "eureka-server"
+            - name: EUREKA_PORT
+              value: "8761"
+            - name: INSTANCE_HOSTNAME
+              value: totalcost-service
+
 ---
 apiVersion: v1
 kind: Service
@@ -28,9 +36,9 @@ metadata:
     app: report-deployment
 spec:
   selector:
+    clusterIP: None
     app: report-deployment
   ports:
     - protocol: TCP
-      port: 8095
-      targetPort: 8095
-  type: ClusterIP
+      port: 8080
+      targetPort: 8080

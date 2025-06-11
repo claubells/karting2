@@ -17,8 +17,6 @@ spec:
       containers:
         - name: rates-service
           image: claubells/rates-service
-          ports:
-            - containerPort: 8094
           env:
             - name: SERVER_PORT
               value: "0"
@@ -53,10 +51,8 @@ spec:
               value: "eureka-server-service"
             - name: EUREKA_PORT
               value: "8761"
-            - name: HOSTNAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+            - name: INSTANCE_HOSTNAME
+              value: totalcost-service
 ---
 apiVersion: v1
 kind: Service
@@ -65,10 +61,10 @@ metadata:
   labels:
     app: rates-deployment
 spec:
+  clusterIP: None
   selector:
     app: rates-deployment
   ports:
     - protocol: TCP
-      port: 8094
-      targetPort: 8094
-  type: ClusterIP
+      port: 8080
+      targetPort: 8080

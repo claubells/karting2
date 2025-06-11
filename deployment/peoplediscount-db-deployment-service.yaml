@@ -87,4 +87,4 @@ spec:
   selector:
     app: peoplediscount-db-deployment
     tier: database
-  type: ClusterIP
+  type: LoadBalancer

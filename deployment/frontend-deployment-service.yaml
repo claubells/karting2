@@ -23,7 +23,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-service
+  name: frontend-deployment
+  labels:
+    app: frontend-deployment
 spec:
   type: NodePort
   selector:
