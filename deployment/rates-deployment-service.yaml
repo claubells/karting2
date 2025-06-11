@@ -21,7 +21,7 @@ spec:
             - containerPort: 8094
           env:
             - name: SERVER_PORT
-              value: "0"
+              value: "8094"
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
@@ -47,6 +47,14 @@ spec:
                 secretKeyRef:
                   name: postgres-credentials
                   key: DB_PASSWORD_RATES
+            - name: CONFIG_SERVER_HOST
+              value: "config-server-service"
+            - name: EUREKA_HOST
+              value: "eureka-server-service"
+            - name: EUREKA_PORT
+              value: "8761"
+            - name: INSTANCE_HOSTNAME
+              value: evaluation-service
 ---
 apiVersion: v1
 kind: Service
