@@ -1,41 +1,6 @@
 # karting2
 Karting RM 2 - TINGESO
 
-Para crear las imagenes vamos a la ruta de un ms y ejecutamos:
-
-docker build -t usuario_docker/nombre_imagen . 
-
----
-docker build -t claubells/config-server .
-docker push claubells/config-server
-
-docker build -t claubells/eureka-server .
-docker push claubells/eureka-server
-
-docker build -t claubells/gateway-server .
-docker push claubells/gateway-server
-
-docker build -t claubells/loyaltydiscount-service .
-docker push claubells/loyaltydiscount-service
-
-docker build -t claubells/peoplediscount-service .
-docker push claubells/peoplediscount-service
-
-docker build -t claubells/rack-service .
-docker push claubells/rack-service
-
-docker build -t claubells/rates-service .
-docker push claubells/rates-service
-
-docker build -t claubells/report-service .
-docker push claubells/report-service
-
-docker build -t claubells/reservation-service .
-docker push claubells/reservation-service
-
-docker build -t claubells/specialdaydiscount-service .
-docker push claubells/specialdaydiscount-service
-
 ---
 Para crear las imagenes con docker compose:
 ---
@@ -62,16 +27,56 @@ kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment
 
 Pero si queremos en orden:
 ---
-kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/backend/deployment/postgres-config-map.yaml
-kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/backend/deployment/postgres-secrets.yaml
-kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/backend/deployment/loyaltydiscount-db-deployment-service.yaml
-kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/backend/deployment/peoplediscount-db-deployment-service.yaml
-kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/backend/deployment/rates-db-deployment-service.yaml
-kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/backend/deployment/reservation-db-deployment-service.yaml
-kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/backend/deployment/specialdaydiscount-db-deployment-service.yaml
+# 1. Secrets y ConfigMaps PRIMERO
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/postgres-secrets.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/postgres-config-map.yaml
 
-kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/backend/deployment/config-server-deployment-service.yaml
-kubectl get pods
+# 2. Verifica que se crearon
+kubectl get secrets
+kubectl get configmaps
+
+# 3. Aplica las BASES DE DATOS
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/rates-db-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/reservation-db-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/loyaltydiscount-db-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/peoplediscount-db-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/specialdaydiscount-db-deployment-service.yaml
+
+# 4. Espera que las DBs estén Running (esto toma un momento)
+kubectl get pods -w
+
+# 5. Aplica Config Server y Eureka
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/config-server-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/eureka-server-deployment-service.yaml
+
+# 6. Espera que estén Running
+kubectl get pods -w
+# CTRL+C cuando config-server y eureka-server estén "Running"
+
+# 7. Aplica los MICROSERVICIOS
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/rates-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/reservation-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/loyaltydiscount-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/peoplediscount-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/specialdaydiscount-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/rack-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/report-deployment-service.yaml
+
+# 8. Finalmente Gateway y Frontend
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/gateway-server-deployment-service.yaml
+kubectl apply -f /mnt/c/Users/claud/Desktop/karting2/deployment/frontend-deployment-service.yaml
+
+
+## Version mas rapida:
+cd /mnt/c/Users/claud/Desktop/karting2/deployment
+
+# Aplica todo en orden
+kubectl apply -f postgres-secrets.yaml
+
+kubectl apply -f postgres-config-map.yaml
+
+kubectl apply -f .
+
 ---
 
 Para obtener los pods:
@@ -101,4 +106,4 @@ kubectl get pods | grep CrashLoopBackOff | awk '{print $1}' | xargs -r kubectl d
 
 Para entrar a la aplicación:
 ---
-minikube service frontend-service
+minikube service frontend-deployment
