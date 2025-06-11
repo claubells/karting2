@@ -93,10 +93,12 @@ kubectl delete pv --all
 
 kubectl delete all --all
 ---
+Para reiniciar los pods en CrashLoopBackOff:
+
+kubectl get pods | grep CrashLoopBackOff | awk '{print $1}' | xargs -r kubectl delete pod
+
+
 
 Para entrar a la aplicación:
-1. Obtenemos la ip
 ---
-minikube ip
----
-2. http://<minikube-ip>:30777
+minikube service frontend-service
