@@ -6,51 +6,48 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: http://eureka-server-service:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 spring:
+  application:
+    name: gateway-server
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-        default-filters:
-          - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: '*'
-            allowedMethods: "*"
-            allowedHeaders: "*"
       routes:
-        - id: loyaltydiscount-service
-          uri: lb://loyaltydiscount-service:8091
+        - id: rates-service
+          uri: lb://rates-service
           predicates:
-            - Path=/api/client/**
-            - Path=/api/loyalty/**
-        - id: peoplediscount-service
-          uri: lb://peoplediscount-service:8092
+            - Path=/api/rates/**
+        - id: reservation-service
+          uri: lb://reservation-service
           predicates:
-            - Path=/api/people/**
+            - Path=/api/reservation/**
         - id: rack-service
-          uri: lb://rack-service:8093
+          uri: lb://rack-service
           predicates:
             - Path=/api/rack/**
-        - id: rates-service
-          uri: lb://rates-service:8094
-          predicates:
-            - Path=/api/kart/**
-            - Path=/api/rates/**
         - id: report-service
-          uri: lb://report-service:8095
+          uri: lb://report-service
           predicates:
             - Path=/api/report/**
-        - id: reservation-service
-          uri: lb://reservation-service:8096
+        - id: loyaltydiscount-service
+          uri: lb://loyaltydiscount-service
           predicates:
-            - Path=/api/receipt/**
-            - Path=/api/reservation/**
-            - Path=/api/hours/**
+            - Path=/api/loyalty/**
+        - id: peoplediscount-service
+          uri: lb://peoplediscount-service
+          predicates:
+            - Path=/api/people/**
         - id: specialdaydiscount-service
-          uri: lb://specialdaydiscount-service:8097
+          uri: lb://specialdaydiscount-service
           predicates:
-            - Path=/api/birthday/**
             - Path=/api/specialday/**
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
