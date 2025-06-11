@@ -4,7 +4,7 @@ spring:
   application:
     name: rates-service
   datasource:
-    url: jdbc:postgresql://rates-db-service::5432/rates-db
+    url: jdbc:postgresql://rates-db-service:5432/rates-db
     username: postgres
     password: admin
     driver-class-name: org.postgresql.Driver
