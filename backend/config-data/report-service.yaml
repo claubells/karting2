@@ -2,7 +2,7 @@ server:
   port: ${SERVER_PORT}
 spring:
   application:
-    name: rates-service
+    name: report-service
 eureka:
   instance:
     preferIpAddress: true
@@ -11,6 +11,3 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: http://eureka-server-service:8761/eureka/
-    instance:
-        instance-id: ${spring.application.name}:${server.port}
-        hostname: ${HOSTNAME}

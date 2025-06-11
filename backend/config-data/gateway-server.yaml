@@ -1,13 +1,5 @@
 server:
   port: 8080
-eureka:
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka
-    instance:
-      hostname: localhost
 spring:
   application:
     name: gateway-service
@@ -16,41 +8,57 @@ spring:
       discovery:
         locator:
           enabled: true
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowed-origin-patterns: '*'
-            allowed-methods: "*"
-            allowed-headers: "*"
-            allow-credentials: true
+          lower-case-service-id: true
       routes:
         - id: rates-service
           uri: lb://rates-service
           predicates:
             - Path=/api/rates/**
+          filters:
+            - StripPrefix=2
         - id: reservation-service
           uri: lb://reservation-service
           predicates:
             - Path=/api/reservation/**
+          filters:
+            - StripPrefix=2
         - id: rack-service
           uri: lb://rack-service
           predicates:
             - Path=/api/rack/**
+          filters:
+            - StripPrefix=2
         - id: report-service
           uri: lb://report-service
           predicates:
             - Path=/api/report/**
+          filters:
+            - StripPrefix=2
         - id: loyaltydiscount-service
           uri: lb://loyaltydiscount-service
           predicates:
             - Path=/api/loyalty/**
+          filters:
+            - StripPrefix=2
         - id: peoplediscount-service
           uri: lb://peoplediscount-service
           predicates:
             - Path=/api/people/**
+          filters:
+            - StripPrefix=2
         - id: specialdaydiscount-service
           uri: lb://specialdaydiscount-service
           predicates:
             - Path=/api/specialday/**
+          filters:
+            - StripPrefix=2
+eureka:
+  instance:
+    preferIpAddress: true
+    instance-id: ${spring.application.name}:${server.port}
+    hostname: ${HOSTNAME:localhost}
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://eureka-server-service:8761/eureka/
