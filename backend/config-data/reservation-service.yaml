@@ -9,8 +9,9 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
+    database: POSTGRESQL
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -18,10 +19,11 @@ spring:
 eureka:
   instance:
     preferIpAddress: true
-    instance-id: ${spring.application.name}:${server.port}
-    hostname: ${HOSTNAME}
   client:
     fetch-registry: true
     register-with-eureka: true
     service-url:
       defaultZone: http://eureka-server-service:8761/eureka/
+    instance:
+        instance-id: ${spring.application.name}:${server.port}
+        hostname: ${HOSTNAME}

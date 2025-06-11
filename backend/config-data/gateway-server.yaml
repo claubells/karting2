@@ -54,11 +54,3 @@ spring:
           uri: lb://specialdaydiscount-service
           predicates:
             - Path=/api/specialday/**
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-details: always
